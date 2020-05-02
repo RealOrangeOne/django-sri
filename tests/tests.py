@@ -31,6 +31,40 @@ def test_generic_template():
     )
 
 
+def test_algorithms_template():
+    rendered = render_to_string("algorithms.html")
+    assert (
+        "<script src='/static/index.js' integrity='sha384-dExnf54EbXTQ1VmweBEJRWX3MPT4xeDV5p71GIX2hpvV+8B/kzo3SObynuveYt9w'></script>"
+        in rendered
+    )
+    assert (
+        "<link rel='stylesheet' href='/static/index.css' integrity='sha512-7v9G7AKwpjnlEYhw9GdXu/9G8bq0PqM427/QmgH2TufqEUcjsANEoyCoOkpV8TBCnbQigwNKpMaZNskJG8Ejdw=='/>"
+        in rendered
+    )
+
+
+@pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
+def test_js_algorithm(algorithm):
+    assert "integrity='{}-".format(algorithm) in templatetags.sri_js(
+        "index.js", algorithm
+    )
+
+
+@pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
+def test_css_algorithm(algorithm):
+    assert "integrity='{}-".format(algorithm) in templatetags.sri_css(
+        "index.css", algorithm
+    )
+
+
+@pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
+def test_generic_algorithm(algorithm):
+    assert "integrity='{}-".format(algorithm) in templatetags.sri(
+        "index.css", algorithm
+    )
+    assert "integrity='{}-".format(algorithm) in templatetags.sri("index.js", algorithm)
+
+
 def test_js():
     assert (
         templatetags.sri_js("index.js")

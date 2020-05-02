@@ -10,11 +10,11 @@ from sri.templatetags import sri as templatetags
 def test_simple_template():
     rendered = render_to_string("simple.html")
     assert (
-        "<script src='/static/index.js' integrity='sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI='></script>"
+        '<script type="text/javascript" src="/static/index.js" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" crossorigin="anonymous"></script>'
         in rendered
     )
     assert (
-        "<link rel='stylesheet' href='/static/index.css' integrity='sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY='/>"
+        '<link rel="stylesheet" type="text/css" href="/static/index.css" integrity="sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY=" crossorigin="anonymous" />'
         in rendered
     )
 
@@ -22,11 +22,11 @@ def test_simple_template():
 def test_generic_template():
     rendered = render_to_string("generic.html")
     assert (
-        "<script src='/static/index.js' integrity='sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI='></script>"
+        '<script type="text/javascript" src="/static/index.js" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" crossorigin="anonymous"></script>'
         in rendered
     )
     assert (
-        "<link rel='stylesheet' href='/static/index.css' integrity='sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY='/>"
+        '<link rel="stylesheet" type="text/css" href="/static/index.css" integrity="sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY=" crossorigin="anonymous" />'
         in rendered
     )
 
@@ -34,42 +34,42 @@ def test_generic_template():
 def test_algorithms_template():
     rendered = render_to_string("algorithms.html")
     assert (
-        "<script src='/static/index.js' integrity='sha384-dExnf54EbXTQ1VmweBEJRWX3MPT4xeDV5p71GIX2hpvV+8B/kzo3SObynuveYt9w'></script>"
+        '<script type="text/javascript" src="/static/index.js" integrity="sha384-dExnf54EbXTQ1VmweBEJRWX3MPT4xeDV5p71GIX2hpvV+8B/kzo3SObynuveYt9w" crossorigin="anonymous"></script>'
         in rendered
     )
     assert (
-        "<link rel='stylesheet' href='/static/index.css' integrity='sha512-7v9G7AKwpjnlEYhw9GdXu/9G8bq0PqM427/QmgH2TufqEUcjsANEoyCoOkpV8TBCnbQigwNKpMaZNskJG8Ejdw=='/>"
+        '<link rel="stylesheet" type="text/css" href="/static/index.css" integrity="sha512-7v9G7AKwpjnlEYhw9GdXu/9G8bq0PqM427/QmgH2TufqEUcjsANEoyCoOkpV8TBCnbQigwNKpMaZNskJG8Ejdw==" crossorigin="anonymous" />'
         in rendered
     )
 
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
 def test_js_algorithm(algorithm):
-    assert f"integrity='{algorithm}-" in templatetags.sri_js("index.js", algorithm)
+    assert f'integrity="{algorithm}-' in templatetags.sri_js("index.js", algorithm)
 
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
 def test_css_algorithm(algorithm):
-    assert f"integrity='{algorithm}-" in templatetags.sri_css("index.css", algorithm)
+    assert f'integrity="{algorithm}-' in templatetags.sri_css("index.css", algorithm)
 
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
 def test_generic_algorithm(algorithm):
-    assert f"integrity='{algorithm}-" in templatetags.sri("index.css", algorithm)
-    assert f"integrity='{algorithm}-" in templatetags.sri("index.js", algorithm)
+    assert f'integrity="{algorithm}-' in templatetags.sri("index.css", algorithm)
+    assert f'integrity="{algorithm}-' in templatetags.sri("index.js", algorithm)
 
 
 def test_js():
     assert (
         templatetags.sri_js("index.js")
-        == "<script src='/static/index.js' integrity='sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI='></script>"
+        == '<script type="text/javascript" src="/static/index.js" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" crossorigin="anonymous"></script>'
     )
 
 
 def test_css():
     assert (
         templatetags.sri_css("index.css")
-        == "<link rel='stylesheet' href='/static/index.css' integrity='sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY='/>"
+        == '<link rel="stylesheet" type="text/css" href="/static/index.css" integrity="sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY=" crossorigin="anonymous" />'
     )
 
 

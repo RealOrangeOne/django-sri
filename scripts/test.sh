@@ -5,7 +5,7 @@ export PATH=env/bin:${PATH}
 set -ex
 
 
-python manage.py test
+pytest --verbose --cov sri/ --cov-report term --cov-report html
 
 if hash black 2>/dev/null;
 then

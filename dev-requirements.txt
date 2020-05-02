@@ -10,3 +10,6 @@ flake8-tuple==0.4.0
 mypy==0.720.0
 isort==4.3.21
 black==19.10b0; python_version >= '3.6'
+pytest==5.4.1
+pytest-django==3.9.0
+pytest-cov==2.8.1

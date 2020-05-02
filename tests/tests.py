@@ -45,24 +45,18 @@ def test_algorithms_template():
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
 def test_js_algorithm(algorithm):
-    assert "integrity='{}-".format(algorithm) in templatetags.sri_js(
-        "index.js", algorithm
-    )
+    assert f"integrity='{algorithm}-" in templatetags.sri_js("index.js", algorithm)
 
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
 def test_css_algorithm(algorithm):
-    assert "integrity='{}-".format(algorithm) in templatetags.sri_css(
-        "index.css", algorithm
-    )
+    assert f"integrity='{algorithm}-" in templatetags.sri_css("index.css", algorithm)
 
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
 def test_generic_algorithm(algorithm):
-    assert "integrity='{}-".format(algorithm) in templatetags.sri(
-        "index.css", algorithm
-    )
-    assert "integrity='{}-".format(algorithm) in templatetags.sri("index.js", algorithm)
+    assert f"integrity='{algorithm}-" in templatetags.sri("index.css", algorithm)
+    assert f"integrity='{algorithm}-" in templatetags.sri("index.js", algorithm)
 
 
 def test_js():

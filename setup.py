@@ -13,6 +13,7 @@ setup(
     long_description_content_type="text/markdown",
     license="BSD",
     packages=find_packages(include=["sri"]),
+    package_data={"sri": ["py.typed"]},
     install_requires=["Django>=2.2"],
     python_requires=">=3.6",
 )

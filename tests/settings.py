@@ -1,4 +1,8 @@
-INSTALLED_APPS = ["sri", "tests"]
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+INSTALLED_APPS = ["django.contrib.staticfiles", "sri", "tests"]
 
 TEMPLATES = [
     {
@@ -10,3 +14,6 @@ TEMPLATES = [
 ]
 
 SECRET_KEY = "abcde12345"
+
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_URL = "/static/"

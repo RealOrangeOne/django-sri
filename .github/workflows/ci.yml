@@ -23,7 +23,10 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('setup.py') }}-${{ hashFiles('dev-requirements.txt') }}
       - name: Install dependencies
         run: |
+          pip install --upgrade pip
           pip install -r dev-requirements.txt
           pip install Django~=${{ matrix.django-version }}
       - name: Run tests
         run: scripts/test.sh
+      - name: Build package
+        run: python setup.py clean sdist

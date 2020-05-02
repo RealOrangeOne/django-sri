@@ -1,5 +1,6 @@
 import base64
 import hashlib
+from functools import lru_cache
 
 from django.conf import settings
 from django.utils._os import safe_join
@@ -8,6 +9,7 @@ HASHERS = {"sha256": hashlib.sha256, "sha384": hashlib.sha384, "sha512": hashlib
 DEFAULT_ALGORITHM = getattr(settings, "SRI_ALGORITHM", "sha256")
 
 
+@lru_cache()
 def calculate_hash(path: str, algorithm: str) -> str:
     hasher = HASHERS[algorithm]
     with open(path, "r") as f:

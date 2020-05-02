@@ -90,8 +90,12 @@ def test_default_algorithm_exists():
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
 def test_hashes_are_consistent(algorithm):
-    digest = utils.calculate_hash(utils.get_static_path("index.js"), algorithm)
-    digest_2 = utils.calculate_hash(utils.get_static_path("index.js"), algorithm)
+    digest = utils.calculate_hash.__wrapped__(
+        utils.get_static_path("index.js"), algorithm
+    )
+    digest_2 = utils.calculate_hash.__wrapped__(
+        utils.get_static_path("index.js"), algorithm
+    )
     assert digest == digest_2
 
 

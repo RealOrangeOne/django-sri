@@ -1,0 +1,12 @@
+-e .
+
+flake8==3.7.9
+flake8-bugbear==19.8.0
+flake8-builtins==1.4.2
+flake8-comprehensions==3.1.4
+flake8-mutable==1.2.0
+flake8-print==3.1.4
+flake8-tuple==0.4.0
+mypy==0.720.0
+isort==4.3.21
+black==19.10b0; python_version >= '3.6'

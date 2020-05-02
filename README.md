@@ -40,6 +40,8 @@ Specific tags are also available:
 
 For performance, the hashes of files are cached in memory using [`lru_cache`](https://docs.python.org/3/library/functools.html#functools.lru_cache) for future requests.
 
+__Note__: By default, integrity hashes are not output when `DEBUG` is `True`, as static files change a lot during local development. To override this, set `USE_SRI` to `True`.
+
 ### Algorithms
 
 The SRI standard supports 3 algorithms: sha256, sha384 and sha512. By default, SHA256 is used. To override this, supply an additional argument to the `sri` template tag (or the specific ones):

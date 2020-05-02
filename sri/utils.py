@@ -8,6 +8,8 @@ from django.utils._os import safe_join
 HASHERS = {"sha256": hashlib.sha256, "sha384": hashlib.sha384, "sha512": hashlib.sha512}
 DEFAULT_ALGORITHM = getattr(settings, "SRI_ALGORITHM", "sha256")
 
+USE_SRI = getattr(settings, "USE_SRI", not settings.DEBUG)
+
 
 @lru_cache()
 def calculate_hash(path: str, algorithm: str) -> str:

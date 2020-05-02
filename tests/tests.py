@@ -103,3 +103,15 @@ def test_hashes_are_consistent(algorithm):
 def test_integrity(algorithm):
     integrity = utils.calculate_integrity(utils.get_static_path("index.js"), algorithm)
     assert integrity.startswith(algorithm)
+
+
+@pytest.mark.parametrize(
+    "tag", [templatetags.sri, templatetags.sri_css, templatetags.sri_js]
+)
+def test_disable_sri(tag):
+    original_value = templatetags.USE_SRI
+    try:
+        templatetags.USE_SRI = False
+        assert "integrity" not in tag("index.js")
+    finally:
+        templatetags.USE_SRI = original_value

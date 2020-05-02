@@ -1,4 +1,4 @@
-from setuptools import find_packages, setup
+from setuptools import setup
 
 with open("README.md") as f:
     readme = f.read()
@@ -12,7 +12,7 @@ setup(
     long_description=readme,
     long_description_content_type="text/markdown",
     license="BSD",
-    packages=find_packages(),
+    packages=["sri", "sri.templatetags"],
     install_requires=["Django>=2.2"],
     python_requires=">=3.6",
 )

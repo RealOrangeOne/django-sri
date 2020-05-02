@@ -43,3 +43,8 @@ EXTENSIONS = {"js": sri_js, "css": sri_css}
 def sri(path, algorithm=DEFAULT_ALGORITHM):
     extension = os.path.splitext(path)[1][1:]
     return EXTENSIONS[extension](path, algorithm)
+
+
+@register.simple_tag
+def sri_integrity(path, algorithm=DEFAULT_ALGORITHM):
+    return calculate_integrity(get_static_path(path), algorithm)

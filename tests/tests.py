@@ -115,3 +115,8 @@ def test_disable_sri(tag):
         assert "integrity" not in tag("index.js")
     finally:
         templatetags.USE_SRI = original_value
+
+
+@pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
+def test_sri_integrity(algorithm):
+    assert templatetags.sri_integrity("index.js", algorithm).startswith(f"{algorithm}-")

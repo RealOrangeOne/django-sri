@@ -18,6 +18,18 @@ def test_simple():
     )
 
 
+def test_generic():
+    rendered = render_to_string("generic.html")
+    assert (
+        "<script src='/static/index.js' integrity='sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI='></script>"
+        in rendered
+    )
+    assert (
+        "<link rel='stylesheet' href='/static/index.css' integrity='sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY='/>"
+        in rendered
+    )
+
+
 def test_get_static_path():
     index_js_path = utils.get_static_path("index.js")
     assert index_js_path == os.path.abspath("tests/static/index.js")

@@ -4,9 +4,10 @@ import pytest
 from django.template.loader import render_to_string
 
 from sri import utils
+from sri.templatetags import sri as templatetags
 
 
-def test_simple():
+def test_simple_template():
     rendered = render_to_string("simple.html")
     assert (
         "<script src='/static/index.js' integrity='sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI='></script>"
@@ -18,7 +19,7 @@ def test_simple():
     )
 
 
-def test_generic():
+def test_generic_template():
     rendered = render_to_string("generic.html")
     assert (
         "<script src='/static/index.js' integrity='sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI='></script>"
@@ -28,6 +29,25 @@ def test_generic():
         "<link rel='stylesheet' href='/static/index.css' integrity='sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY='/>"
         in rendered
     )
+
+
+def test_js():
+    assert (
+        templatetags.sri_js("index.js")
+        == "<script src='/static/index.js' integrity='sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI='></script>"
+    )
+
+
+def test_css():
+    assert (
+        templatetags.sri_css("index.css")
+        == "<link rel='stylesheet' href='/static/index.css' integrity='sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY='/>"
+    )
+
+
+def test_generic():
+    assert templatetags.sri_js("index.js") == templatetags.sri("index.js")
+    assert templatetags.sri_css("index.css") == templatetags.sri("index.css")
 
 
 def test_get_static_path():

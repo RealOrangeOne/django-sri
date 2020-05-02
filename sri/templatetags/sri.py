@@ -1,7 +1,8 @@
+import os.path
+
 from django import template
 from django.templatetags.static import static
 from django.utils.safestring import mark_safe
-import os.path
 
 from sri.utils import calculate_integrity, get_static_path
 

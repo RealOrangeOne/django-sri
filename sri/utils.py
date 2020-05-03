@@ -20,7 +20,7 @@ def calculate_hash(path: str, algorithm: str) -> str:
     return base64.b64encode(digest).decode()
 
 
-def get_static_path(path) -> str:
+def get_static_path(path: str) -> str:
     """
     Resolves a path commonly passed to `{% static %}` into a filesystem path
     """
@@ -32,4 +32,4 @@ def calculate_integrity(path: str, algorithm: str = DEFAULT_ALGORITHM) -> str:
 
 
 def attrs_to_str(attrs: dict):
-    return " ".join(f'{k}="{v}"' for k, v in attrs.items())
+    return " ".join(f'{k}="{v}"' for k, v in sorted(attrs.items()))

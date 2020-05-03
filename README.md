@@ -20,7 +20,9 @@ And add `sri` to your `INSTALLED_APPS`.
 
 ## Usage
 
-`django-sri` is designed to be used through template tags:
+### Template Tags
+
+`django-sri` is designed to primarily be used through template tags:
 
 ```html
 {% load sri %}
@@ -29,20 +31,11 @@ And add `sri` to your `INSTALLED_APPS`.
 {% sri "index.css" %} <!-- Will output "<link rel='stylesheet' href='/static/index.css' integrity='sha256-...'/>" -->
 ```
 
-Specific tags are also available:
-
-```html
-{% load sri %}
-
-{% sri_js "index.js" %} <!-- Will output "<script src='/static/index.js' integrity='sha256-...'></script>" -->
-{% sri_css "index.css" %} <!-- Will output "<link rel='stylesheet' href='/static/index.css' integrity='sha256-...'/>" -->
-```
-
 For performance, the hashes of files are cached in memory using [`lru_cache`](https://docs.python.org/3/library/functools.html#functools.lru_cache) for future requests.
 
 __Note__: By default, integrity hashes are not output when `DEBUG` is `True`, as static files change a lot during local development. To override this, set `USE_SRI` to `True`.
 
-### Algorithms
+#### Algorithms
 
 The SRI standard supports 3 algorithms: sha256, sha384 and sha512. By default, SHA256 is used. To override this, supply an additional argument to the `sri` template tag (or the specific ones):
 
@@ -54,9 +47,17 @@ The SRI standard supports 3 algorithms: sha256, sha384 and sha512. By default, S
 
 The default algorithm can be changed by setting `SRI_ALGORITHM` to the required algorithm.
 
-### Just the integrity value
+#### Just the integrity value
 
 To retrieve just the integrity hash (the contents of the `integrity` attribute), you can use the `{% sri_integrity %}` tag, which supports the same arguments as the other tags.
+
+### API
+
+```python
+from sri import calculate_integrity
+
+calculate_integrity("/path/to/myfile.txt")  # "sha256-..."
+```
 
 ### _"Does this work with [whitenoise](https://whitenoise.evans.io/en/stable/) or alike?"_
 

@@ -10,23 +10,11 @@ from sri.templatetags import sri as templatetags
 def test_simple_template():
     rendered = render_to_string("simple.html")
     assert (
-        '<script type="text/javascript" src="/static/index.js" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" crossorigin="anonymous"></script>'
+        '<script crossorigin="anonymous" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" src="/static/index.js" type="text/javascript"></script>'
         in rendered
     )
     assert (
-        '<link rel="stylesheet" type="text/css" href="/static/index.css" integrity="sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY=" crossorigin="anonymous" />'
-        in rendered
-    )
-
-
-def test_generic_template():
-    rendered = render_to_string("generic.html")
-    assert (
-        '<script type="text/javascript" src="/static/index.js" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" crossorigin="anonymous"></script>'
-        in rendered
-    )
-    assert (
-        '<link rel="stylesheet" type="text/css" href="/static/index.css" integrity="sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY=" crossorigin="anonymous" />'
+        '<link crossorigin="anonymous" href="/static/index.css" integrity="sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY=" rel="stylesheet" type="text/css"/>'
         in rendered
     )
 
@@ -34,48 +22,19 @@ def test_generic_template():
 def test_algorithms_template():
     rendered = render_to_string("algorithms.html")
     assert (
-        '<script type="text/javascript" src="/static/index.js" integrity="sha384-dExnf54EbXTQ1VmweBEJRWX3MPT4xeDV5p71GIX2hpvV+8B/kzo3SObynuveYt9w" crossorigin="anonymous"></script>'
+        '<script crossorigin="anonymous" integrity="sha384-dExnf54EbXTQ1VmweBEJRWX3MPT4xeDV5p71GIX2hpvV+8B/kzo3SObynuveYt9w" src="/static/index.js" type="text/javascript"></script>'
         in rendered
     )
     assert (
-        '<link rel="stylesheet" type="text/css" href="/static/index.css" integrity="sha512-7v9G7AKwpjnlEYhw9GdXu/9G8bq0PqM427/QmgH2TufqEUcjsANEoyCoOkpV8TBCnbQigwNKpMaZNskJG8Ejdw==" crossorigin="anonymous" />'
+        '<link crossorigin="anonymous" href="/static/index.css" integrity="sha512-7v9G7AKwpjnlEYhw9GdXu/9G8bq0PqM427/QmgH2TufqEUcjsANEoyCoOkpV8TBCnbQigwNKpMaZNskJG8Ejdw==" rel="stylesheet" type="text/css"/>'
         in rendered
     )
-
-
-@pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
-def test_js_algorithm(algorithm):
-    assert f'integrity="{algorithm}-' in templatetags.sri_js("index.js", algorithm)
-
-
-@pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
-def test_css_algorithm(algorithm):
-    assert f'integrity="{algorithm}-' in templatetags.sri_css("index.css", algorithm)
 
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
 def test_generic_algorithm(algorithm):
-    assert f'integrity="{algorithm}-' in templatetags.sri("index.css", algorithm)
-    assert f'integrity="{algorithm}-' in templatetags.sri("index.js", algorithm)
-
-
-def test_js():
-    assert (
-        templatetags.sri_js("index.js")
-        == '<script type="text/javascript" src="/static/index.js" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" crossorigin="anonymous"></script>'
-    )
-
-
-def test_css():
-    assert (
-        templatetags.sri_css("index.css")
-        == '<link rel="stylesheet" type="text/css" href="/static/index.css" integrity="sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY=" crossorigin="anonymous" />'
-    )
-
-
-def test_generic():
-    assert templatetags.sri_js("index.js") == templatetags.sri("index.js")
-    assert templatetags.sri_css("index.css") == templatetags.sri("index.css")
+    assert f'integrity="{algorithm}-' in templatetags.sri_static("index.css", algorithm)
+    assert f'integrity="{algorithm}-' in templatetags.sri_static("index.js", algorithm)
 
 
 def test_get_static_path():
@@ -105,14 +64,11 @@ def test_integrity(algorithm):
     assert integrity.startswith(algorithm)
 
 
-@pytest.mark.parametrize(
-    "tag", [templatetags.sri, templatetags.sri_css, templatetags.sri_js]
-)
-def test_disable_sri(tag):
+def test_disable_sri():
     original_value = templatetags.USE_SRI
     try:
         templatetags.USE_SRI = False
-        assert "integrity" not in tag("index.js")
+        assert "integrity" not in templatetags.sri_static("index.js")
     finally:
         templatetags.USE_SRI = original_value
 

@@ -6,6 +6,8 @@ from django.template.loader import render_to_string
 from sri import utils
 from sri.templatetags import sri as templatetags
 
+TEST_FILES = ["index.css", "index.js"]
+
 
 def test_simple_template():
     rendered = render_to_string("simple.html")
@@ -32,15 +34,16 @@ def test_algorithms_template():
 
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
-def test_generic_algorithm(algorithm):
-    assert f'integrity="{algorithm}-' in templatetags.sri_static("index.css", algorithm)
-    assert f'integrity="{algorithm}-' in templatetags.sri_static("index.js", algorithm)
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_generic_algorithm(algorithm, file):
+    assert f'integrity="{algorithm}-' in templatetags.sri_static(file, algorithm)
 
 
-def test_get_static_path():
-    index_js_path = utils.get_static_path("index.js")
-    assert index_js_path == os.path.abspath("tests/static/index.js")
-    assert os.path.isfile(index_js_path)
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_get_static_path(file):
+    file_path = utils.get_static_path(file)
+    assert file_path == os.path.abspath(f"tests/static/{file}")
+    assert os.path.isfile(file_path)
 
 
 def test_default_algorithm_exists():
@@ -48,31 +51,31 @@ def test_default_algorithm_exists():
 
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
-def test_hashes_are_consistent(algorithm):
-    digest = utils.calculate_hash.__wrapped__(
-        utils.get_static_path("index.js"), algorithm
-    )
-    digest_2 = utils.calculate_hash.__wrapped__(
-        utils.get_static_path("index.js"), algorithm
-    )
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_hashes_are_consistent(algorithm, file):
+    digest = utils.calculate_hash.__wrapped__(utils.get_static_path(file), algorithm)
+    digest_2 = utils.calculate_hash.__wrapped__(utils.get_static_path(file), algorithm)
     assert digest == digest_2
 
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
-def test_integrity(algorithm):
-    integrity = utils.calculate_integrity(utils.get_static_path("index.js"), algorithm)
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_integrity(algorithm, file):
+    integrity = utils.calculate_integrity(utils.get_static_path(file), algorithm)
     assert integrity.startswith(algorithm)
 
 
-def test_disable_sri():
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_disable_sri(file):
     original_value = templatetags.USE_SRI
     try:
         templatetags.USE_SRI = False
-        assert "integrity" not in templatetags.sri_static("index.js")
+        assert "integrity" not in templatetags.sri_static(file)
     finally:
         templatetags.USE_SRI = original_value
 
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
-def test_sri_integrity(algorithm):
-    assert templatetags.sri_integrity("index.js", algorithm).startswith(f"{algorithm}-")
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_sri_integrity(algorithm, file):
+    assert templatetags.sri_integrity(file, algorithm).startswith(f"{algorithm}-")

@@ -57,6 +57,15 @@ To retrieve just the integrity hash (the contents of the `integrity` attribute),
 {% sri_integrity_static "index.js" "sha512" %} <!-- Will output "sha512-..." -->
 ```
 
+#### Supported Files
+
+For automatic tag output, the following files are supported:
+
+- `.js`
+- `.css`
+
+`sri_integrity_static` is unaffected by this limitation.
+
 ### API
 
 ```python

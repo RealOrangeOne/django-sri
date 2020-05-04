@@ -44,5 +44,5 @@ def sri_static(path, algorithm=DEFAULT_ALGORITHM):
 
 
 @register.simple_tag
-def sri_integrity(path, algorithm=DEFAULT_ALGORITHM):
+def sri_integrity_static(path, algorithm=DEFAULT_ALGORITHM):
     return calculate_integrity(get_static_path(path), algorithm)

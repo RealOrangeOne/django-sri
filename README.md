@@ -49,7 +49,7 @@ The default algorithm can be changed by setting `SRI_ALGORITHM` to the required 
 
 #### Just the integrity value
 
-To retrieve just the integrity hash (the contents of the `integrity` attribute), you can use the `{% sri_integrity %}` tag, which supports the same arguments as the other tags.
+To retrieve just the integrity hash (the contents of the `integrity` attribute), you can use the `{% sri_integrity_static %}` tag, which supports the same arguments as the other tags.
 
 ### API
 

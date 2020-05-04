@@ -77,8 +77,10 @@ def test_disable_sri(file):
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_sri_integrity(algorithm, file):
-    assert templatetags.sri_integrity(file, algorithm).startswith(f"{algorithm}-")
+def test_sri_integrity_static(algorithm, file):
+    assert templatetags.sri_integrity_static(file, algorithm).startswith(
+        f"{algorithm}-"
+    )
 
 
 @pytest.mark.parametrize("file", TEST_FILES)

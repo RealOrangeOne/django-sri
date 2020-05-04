@@ -1,3 +1,3 @@
-from sri.templatetags.sri import sri_integrity
+from sri.utils import calculate_integrity
 
-__all__ = ["sri_integrity"]
+__all__ = ["calculate_integrity"]

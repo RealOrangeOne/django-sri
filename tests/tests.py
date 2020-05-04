@@ -6,27 +6,17 @@ from django.template.loader import render_to_string
 from sri import utils
 from sri.templatetags import sri as templatetags
 
+TEST_FILES = ["index.css", "index.js"]
+
 
 def test_simple_template():
     rendered = render_to_string("simple.html")
     assert (
-        '<script type="text/javascript" src="/static/index.js" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" crossorigin="anonymous"></script>'
+        '<script crossorigin="anonymous" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" src="/static/index.js" type="text/javascript"></script>'
         in rendered
     )
     assert (
-        '<link rel="stylesheet" type="text/css" href="/static/index.css" integrity="sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY=" crossorigin="anonymous" />'
-        in rendered
-    )
-
-
-def test_generic_template():
-    rendered = render_to_string("generic.html")
-    assert (
-        '<script type="text/javascript" src="/static/index.js" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" crossorigin="anonymous"></script>'
-        in rendered
-    )
-    assert (
-        '<link rel="stylesheet" type="text/css" href="/static/index.css" integrity="sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY=" crossorigin="anonymous" />'
+        '<link crossorigin="anonymous" href="/static/index.css" integrity="sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY=" rel="stylesheet" type="text/css"/>'
         in rendered
     )
 
@@ -34,54 +24,26 @@ def test_generic_template():
 def test_algorithms_template():
     rendered = render_to_string("algorithms.html")
     assert (
-        '<script type="text/javascript" src="/static/index.js" integrity="sha384-dExnf54EbXTQ1VmweBEJRWX3MPT4xeDV5p71GIX2hpvV+8B/kzo3SObynuveYt9w" crossorigin="anonymous"></script>'
+        '<script crossorigin="anonymous" integrity="sha384-dExnf54EbXTQ1VmweBEJRWX3MPT4xeDV5p71GIX2hpvV+8B/kzo3SObynuveYt9w" src="/static/index.js" type="text/javascript"></script>'
         in rendered
     )
     assert (
-        '<link rel="stylesheet" type="text/css" href="/static/index.css" integrity="sha512-7v9G7AKwpjnlEYhw9GdXu/9G8bq0PqM427/QmgH2TufqEUcjsANEoyCoOkpV8TBCnbQigwNKpMaZNskJG8Ejdw==" crossorigin="anonymous" />'
+        '<link crossorigin="anonymous" href="/static/index.css" integrity="sha512-7v9G7AKwpjnlEYhw9GdXu/9G8bq0PqM427/QmgH2TufqEUcjsANEoyCoOkpV8TBCnbQigwNKpMaZNskJG8Ejdw==" rel="stylesheet" type="text/css"/>'
         in rendered
     )
 
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
-def test_js_algorithm(algorithm):
-    assert f'integrity="{algorithm}-' in templatetags.sri_js("index.js", algorithm)
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_generic_algorithm(algorithm, file):
+    assert f'integrity="{algorithm}-' in templatetags.sri_static(file, algorithm)
 
 
-@pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
-def test_css_algorithm(algorithm):
-    assert f'integrity="{algorithm}-' in templatetags.sri_css("index.css", algorithm)
-
-
-@pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
-def test_generic_algorithm(algorithm):
-    assert f'integrity="{algorithm}-' in templatetags.sri("index.css", algorithm)
-    assert f'integrity="{algorithm}-' in templatetags.sri("index.js", algorithm)
-
-
-def test_js():
-    assert (
-        templatetags.sri_js("index.js")
-        == '<script type="text/javascript" src="/static/index.js" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" crossorigin="anonymous"></script>'
-    )
-
-
-def test_css():
-    assert (
-        templatetags.sri_css("index.css")
-        == '<link rel="stylesheet" type="text/css" href="/static/index.css" integrity="sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY=" crossorigin="anonymous" />'
-    )
-
-
-def test_generic():
-    assert templatetags.sri_js("index.js") == templatetags.sri("index.js")
-    assert templatetags.sri_css("index.css") == templatetags.sri("index.css")
-
-
-def test_get_static_path():
-    index_js_path = utils.get_static_path("index.js")
-    assert index_js_path == os.path.abspath("tests/static/index.js")
-    assert os.path.isfile(index_js_path)
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_get_static_path(file):
+    file_path = utils.get_static_path(file)
+    assert file_path == os.path.abspath(f"tests/static/{file}")
+    assert os.path.isfile(file_path)
 
 
 def test_default_algorithm_exists():
@@ -89,34 +51,51 @@ def test_default_algorithm_exists():
 
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
-def test_hashes_are_consistent(algorithm):
-    digest = utils.calculate_hash.__wrapped__(
-        utils.get_static_path("index.js"), algorithm
-    )
-    digest_2 = utils.calculate_hash.__wrapped__(
-        utils.get_static_path("index.js"), algorithm
-    )
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_hashes_are_consistent(algorithm, file):
+    digest = utils.calculate_hash.__wrapped__(utils.get_static_path(file), algorithm)
+    digest_2 = utils.calculate_hash.__wrapped__(utils.get_static_path(file), algorithm)
     assert digest == digest_2
 
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
-def test_integrity(algorithm):
-    integrity = utils.calculate_integrity(utils.get_static_path("index.js"), algorithm)
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_integrity(algorithm, file):
+    integrity = utils.calculate_integrity(utils.get_static_path(file), algorithm)
     assert integrity.startswith(algorithm)
 
 
-@pytest.mark.parametrize(
-    "tag", [templatetags.sri, templatetags.sri_css, templatetags.sri_js]
-)
-def test_disable_sri(tag):
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_disable_sri(file):
     original_value = templatetags.USE_SRI
     try:
         templatetags.USE_SRI = False
-        assert "integrity" not in tag("index.js")
+        assert "integrity" not in templatetags.sri_static(file)
     finally:
         templatetags.USE_SRI = original_value
 
 
 @pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
-def test_sri_integrity(algorithm):
-    assert templatetags.sri_integrity("index.js", algorithm).startswith(f"{algorithm}-")
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_sri_integrity_static(algorithm, file):
+    assert templatetags.sri_integrity_static(file, algorithm).startswith(
+        f"{algorithm}-"
+    )
+
+
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_unknown_algorithm(file):
+    with pytest.raises(KeyError) as e:
+        utils.calculate_integrity(file, "md5")
+    assert e.value.args[0] == "md5"
+
+
+def test_unknown_extension():
+    with pytest.raises(KeyError) as e:
+        templatetags.sri_static("index.md", utils.DEFAULT_ALGORITHM)
+    assert e.value.args[0] == "md"
+
+
+def test_missing_file():
+    with pytest.raises(FileNotFoundError):
+        templatetags.sri_static("foo.js", utils.DEFAULT_ALGORITHM)

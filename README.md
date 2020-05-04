@@ -27,8 +27,8 @@ And add `sri` to your `INSTALLED_APPS`.
 ```html
 {% load sri %}
 
-{% sri "index.js" %} <!-- Will output "<script src='/static/index.js' integrity='sha256-...'></script>" -->
-{% sri "index.css" %} <!-- Will output "<link rel='stylesheet' href='/static/index.css' integrity='sha256-...'/>" -->
+{% sri_static "index.js" %} <!-- Will output "<script src='/static/index.js' integrity='sha256-...'></script>" -->
+{% sri_static "index.css" %} <!-- Will output "<link rel='stylesheet' href='/static/index.css' integrity='sha256-...'/>" -->
 ```
 
 For performance, the hashes of files are cached in memory using [`lru_cache`](https://docs.python.org/3/library/functools.html#functools.lru_cache) for future requests.
@@ -42,7 +42,7 @@ The SRI standard supports 3 algorithms: sha256, sha384 and sha512. By default, S
 ```html
 {% load sri %}
 
-{% sri "index.js" "sha512" %} <!-- Will output "<script src='/static/index.js' integrity='sha512-...'></script>" -->
+{% sri_static "index.js" "sha512" %} <!-- Will output "<script src='/static/index.js' integrity='sha512-...'></script>" -->
 ```
 
 The default algorithm can be changed by setting `SRI_ALGORITHM` to the required algorithm.

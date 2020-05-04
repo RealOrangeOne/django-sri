@@ -79,3 +79,21 @@ def test_disable_sri(file):
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_sri_integrity(algorithm, file):
     assert templatetags.sri_integrity(file, algorithm).startswith(f"{algorithm}-")
+
+
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_unknown_algorithm(file):
+    with pytest.raises(KeyError) as e:
+        utils.calculate_integrity(file, "md5")
+    assert e.value.args[0] == "md5"
+
+
+def test_unknown_extension():
+    with pytest.raises(KeyError) as e:
+        templatetags.sri_static("index.md", utils.DEFAULT_ALGORITHM)
+    assert e.value.args[0] == "md"
+
+
+def test_missing_file():
+    with pytest.raises(FileNotFoundError):
+        templatetags.sri_static("foo.js", utils.DEFAULT_ALGORITHM)

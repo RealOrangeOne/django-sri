@@ -3,7 +3,7 @@ import hashlib
 from functools import lru_cache
 
 from django.conf import settings
-from django.utils._os import safe_join
+from django.contrib.staticfiles.finders import find as find_static_file
 
 HASHERS = {"sha256": hashlib.sha256, "sha384": hashlib.sha384, "sha512": hashlib.sha512}
 DEFAULT_ALGORITHM = getattr(settings, "SRI_ALGORITHM", "sha256")
@@ -24,7 +24,10 @@ def get_static_path(path: str) -> str:
     """
     Resolves a path commonly passed to `{% static %}` into a filesystem path
     """
-    return safe_join(settings.STATIC_ROOT, path)
+    static_file_path = find_static_file(path)
+    if static_file_path is None:
+        raise FileNotFoundError(path)
+    return static_file_path
 
 
 def calculate_integrity(path: str, algorithm: str = DEFAULT_ALGORITHM) -> str:

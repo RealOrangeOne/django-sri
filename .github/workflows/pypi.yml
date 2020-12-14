@@ -15,12 +15,12 @@ jobs:
           python-version: '3.8'
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
+          pip install --upgrade pip wheel
           pip install setuptools twine
       - name: Build and publish
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
-          python setup.py sdist
+          python setup.py sdist bdist_wheel
           twine upload dist/*

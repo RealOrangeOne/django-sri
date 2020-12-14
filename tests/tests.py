@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from sri import utils
 from sri.templatetags import sri as templatetags
 
-TEST_FILES = ["index.css", "index.js"]
+TEST_FILES = ["index.css", "index.js", "admin/js/core.js"]
 
 
 def test_simple_template():
@@ -42,7 +42,8 @@ def test_generic_algorithm(algorithm, file):
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_get_static_path(file):
     file_path = utils.get_static_path(file)
-    assert file_path == os.path.abspath(f"tests/static/{file}")
+    if "site-packages" not in file_path:
+        assert file_path == os.path.abspath(f"tests/static/{file}")
     assert os.path.isfile(file_path)
 
 
@@ -99,3 +100,7 @@ def test_unknown_extension():
 def test_missing_file():
     with pytest.raises(FileNotFoundError):
         templatetags.sri_static("foo.js", utils.DEFAULT_ALGORITHM)
+
+
+def test_app_file():
+    templatetags.sri_static("admin/js/core.js", utils.DEFAULT_ALGORITHM)

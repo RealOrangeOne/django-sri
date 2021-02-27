@@ -34,5 +34,11 @@ def calculate_integrity(path: Path, algorithm: str = DEFAULT_ALGORITHM) -> str:
     return "-".join([algorithm, calculate_hash(path, algorithm)])
 
 
+def calculate_integrity_of_static(
+    static_path: str, algorithm: str = DEFAULT_ALGORITHM
+) -> str:
+    return calculate_integrity(get_static_path(static_path), algorithm)
+
+
 def attrs_to_str(attrs: dict):
     return " ".join(f'{k}="{v}"' for k, v in sorted(attrs.items()))

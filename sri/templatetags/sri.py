@@ -8,8 +8,7 @@ from sri.utils import (
     DEFAULT_ALGORITHM,
     USE_SRI,
     attrs_to_str,
-    calculate_integrity,
-    get_static_path,
+    calculate_integrity_of_static,
 )
 
 register = template.Library()
@@ -36,7 +35,7 @@ def sri_static(path, algorithm=DEFAULT_ALGORITHM):
     if USE_SRI:
         attrs.update(
             {
-                "integrity": calculate_integrity(get_static_path(path), algorithm),
+                "integrity": calculate_integrity_of_static(path, algorithm),
                 "crossorigin": "anonymous",
             }
         )
@@ -45,4 +44,4 @@ def sri_static(path, algorithm=DEFAULT_ALGORITHM):
 
 @register.simple_tag
 def sri_integrity_static(path, algorithm=DEFAULT_ALGORITHM):
-    return calculate_integrity(get_static_path(path), algorithm)
+    return calculate_integrity_of_static(path, algorithm)

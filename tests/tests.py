@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 import pytest
 from django.template.loader import render_to_string
@@ -42,9 +42,12 @@ def test_generic_algorithm(algorithm, file):
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_get_static_path(file):
     file_path = utils.get_static_path(file)
-    if "site-packages" not in file_path:
-        assert file_path == os.path.abspath(f"tests/static/{file}")
-    assert os.path.isfile(file_path)
+
+    assert file_path.exists()
+    assert file_path.is_file()
+
+    if "site-packages" not in str(file_path):
+        assert file_path == Path("tests/static").joinpath(file).resolve()
 
 
 def test_default_algorithm_exists():

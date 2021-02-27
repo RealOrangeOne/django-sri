@@ -44,7 +44,7 @@ def get_static_path(path: str) -> Path:
 
 
 def calculate_integrity(path: Path, algorithm: Algorithm = DEFAULT_ALGORITHM) -> str:
-    return "-".join([algorithm.value, calculate_hash(path, algorithm)])
+    return f"{algorithm.value}-{calculate_hash(path, algorithm)}"
 
 
 def calculate_integrity_of_static(

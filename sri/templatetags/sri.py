@@ -2,16 +2,15 @@ import os.path
 from typing import Optional
 
 from django import template
+from django.conf import settings
 from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 
-from sri.utils import (
-    DEFAULT_ALGORITHM,
-    USE_SRI,
-    Algorithm,
-    attrs_to_str,
-    calculate_integrity_of_static,
-)
+from sri.algorithm import DEFAULT_ALGORITHM, Algorithm
+from sri.integrity import calculate_integrity_of_static
+from sri.utils import attrs_to_str
+
+USE_SRI = getattr(settings, "USE_SRI", not settings.DEBUG)
 
 register = template.Library()
 

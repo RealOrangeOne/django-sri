@@ -70,10 +70,12 @@ For automatic tag output, the following files are supported:
 
 ```python
 from pathlib import Path
-from sri import calculate_integrity, calculate_integrity_of_static
+from sri import calculate_integrity, calculate_integrity_of_static, Algorithm
 
 calculate_integrity(Path("/path/to/myfile.txt"))  # "sha256-..."
 calculate_integrity_of_static("index.js")  # "sha256-..."
+
+calculate_integrity_of_static("index.js", Algorithm.SHA512)  # "sha512-..."
 ```
 
 ### _"Does this work with [whitenoise](https://whitenoise.evans.io/en/stable/) or alike?"_

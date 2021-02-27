@@ -33,10 +33,10 @@ def test_algorithms_template():
     )
 
 
-@pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
+@pytest.mark.parametrize("algorithm", utils.Algorithm)
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_generic_algorithm(algorithm, file):
-    assert f'integrity="{algorithm}-' in templatetags.sri_static(file, algorithm)
+    assert f'integrity="{algorithm.value}-' in templatetags.sri_static(file, algorithm)
 
 
 @pytest.mark.parametrize("file", TEST_FILES)
@@ -54,7 +54,7 @@ def test_default_algorithm_exists():
     assert utils.DEFAULT_ALGORITHM in utils.HASHERS
 
 
-@pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
+@pytest.mark.parametrize("algorithm", utils.Algorithm)
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_hashes_are_consistent(algorithm, file):
     digest = utils.calculate_hash.__wrapped__(utils.get_static_path(file), algorithm)
@@ -62,11 +62,11 @@ def test_hashes_are_consistent(algorithm, file):
     assert digest == digest_2
 
 
-@pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
+@pytest.mark.parametrize("algorithm", utils.Algorithm)
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_integrity(algorithm, file):
     integrity = utils.calculate_integrity(utils.get_static_path(file), algorithm)
-    assert integrity.startswith(algorithm)
+    assert integrity.startswith(algorithm.value)
 
 
 @pytest.mark.parametrize("file", TEST_FILES)
@@ -79,19 +79,19 @@ def test_disable_sri(file):
         templatetags.USE_SRI = original_value
 
 
-@pytest.mark.parametrize("algorithm", utils.HASHERS.keys())
+@pytest.mark.parametrize("algorithm", utils.Algorithm)
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_sri_integrity_static(algorithm, file):
     assert templatetags.sri_integrity_static(file, algorithm).startswith(
-        f"{algorithm}-"
+        f"{algorithm.value}-"
     )
 
 
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_unknown_algorithm(file):
-    with pytest.raises(KeyError) as e:
-        utils.calculate_integrity(file, "md5")
-    assert e.value.args[0] == "md5"
+    with pytest.raises(ValueError) as e:
+        templatetags.sri_static(file, "md5")
+    assert e.value.args[0] == "'md5' is not a valid Algorithm"
 
 
 def test_unknown_extension():

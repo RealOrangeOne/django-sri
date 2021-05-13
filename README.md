@@ -33,7 +33,7 @@ __Note__: By default, integrity hashes are not output when `DEBUG` is `True`, as
 {% sri_static "index.css" %} <!-- Will output "<link rel='stylesheet' href='/static/index.css' integrity='sha256-...'/>" -->
 ```
 
-For performance, the hashes of files are cached in memory using [`lru_cache`](https://docs.python.org/3/library/functools.html#functools.lru_cache) for future requests.
+For performance, the hashes of files are caches in Django's [caching framework](https://docs.djangoproject.com/en/dev/topics/cache/). It will attempt to use the "sri" cache, but fall back to "default" if it doesn't exist. The cache keys are the hash of the file path in the specified algorithm in hex. Caches are stored for as long as `DEFAULT_TIMEOUT` is set to.
 
 #### Algorithms
 

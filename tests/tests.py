@@ -1,12 +1,18 @@
 from pathlib import Path
 
 import pytest
+from django.core.cache import caches
 from django.template.loader import render_to_string
+from django.test import override_settings
 
 import sri
 from sri.templatetags import sri as templatetags
 
 TEST_FILES = ["index.css", "index.js", "admin/js/core.js"]
+
+
+def setup_function(*_):
+    sri.utils.get_cache().clear()  # Clear cache between each test method
 
 
 def test_simple_template():
@@ -57,12 +63,9 @@ def test_default_algorithm_exists():
 @pytest.mark.parametrize("algorithm", sri.Algorithm)
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_hashes_are_consistent(algorithm, file):
-    digest = sri.hashers.calculate_hash.__wrapped__(
-        sri.utils.get_static_path(file), algorithm
-    )
-    digest_2 = sri.hashers.calculate_hash.__wrapped__(
-        sri.utils.get_static_path(file), algorithm
-    )
+    digest = sri.hashers.calculate_hash(sri.utils.get_static_path(file), algorithm)
+    sri.utils.get_cache().clear()
+    digest_2 = sri.hashers.calculate_hash(sri.utils.get_static_path(file), algorithm)
     assert digest == digest_2
 
 
@@ -113,3 +116,27 @@ def test_missing_file():
 
 def test_app_file():
     templatetags.sri_static("admin/js/core.js", sri.algorithm.DEFAULT_ALGORITHM)
+
+
+def test_uses_default_cache():
+    assert sri.utils.get_cache() == caches["default"]
+
+
+@override_settings(
+    CACHES={"sri": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}
+)
+def test_uses_dedicated_cache():
+    assert sri.utils.get_cache() == caches["sri"]
+
+
+@pytest.mark.parametrize("algorithm", sri.Algorithm)
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_caches_hash(algorithm, file):
+
+    file_path = sri.utils.get_static_path(file)
+    cache_key = sri.hashers.get_cache_key(file_path, algorithm)
+    cache = sri.utils.get_cache()
+
+    assert cache.get(cache_key) is None
+    digest = sri.hashers.calculate_hash(file_path, algorithm)
+    assert cache.get(cache_key) == digest

@@ -15,10 +15,6 @@ def get_static_path(path: str) -> Path:
     return Path(static_file_path)
 
 
-def attrs_to_str(attrs: dict):
-    return " ".join(f'{k}="{v}"' for k, v in sorted(attrs.items()))
-
-
 def get_cache():
     try:
         return caches["sri"]

@@ -3,12 +3,12 @@ from typing import Optional
 
 from django import template
 from django.conf import settings
+from django.forms.utils import flatatt
 from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 
 from sri.algorithm import DEFAULT_ALGORITHM, Algorithm
 from sri.integrity import calculate_integrity_of_static
-from sri.utils import attrs_to_str
 
 USE_SRI = getattr(settings, "USE_SRI", not settings.DEBUG)
 
@@ -17,12 +17,12 @@ register = template.Library()
 
 def sri_js(attrs: dict, path: str, algorithm: Algorithm):
     attrs.update({"type": "text/javascript", "src": static(path)})
-    return mark_safe(f"<script {attrs_to_str(attrs)}></script>")
+    return mark_safe(f"<script{flatatt(attrs)}></script>")
 
 
 def sri_css(attrs: dict, path: str, algorithm: Algorithm):
     attrs.update({"rel": "stylesheet", "type": "text/css", "href": static(path)})
-    return mark_safe(f"<link {attrs_to_str(attrs)}/>")
+    return mark_safe(f"<link{flatatt(attrs)}/>")
 
 
 EXTENSIONS = {"js": sri_js, "css": sri_css}

@@ -8,6 +8,7 @@ from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 
 from sri.algorithm import DEFAULT_ALGORITHM, Algorithm
+from sri.attribute import JsAttribute
 from sri.integrity import calculate_integrity_of_static
 
 USE_SRI = getattr(settings, "USE_SRI", not settings.DEBUG)
@@ -15,12 +16,14 @@ USE_SRI = getattr(settings, "USE_SRI", not settings.DEBUG)
 register = template.Library()
 
 
-def sri_js(attrs: dict, path: str, algorithm: Algorithm):
+def sri_js(attrs: dict, path: str, algorithm: Algorithm, js_attr: JsAttribute):
     attrs.update({"type": "text/javascript", "src": static(path)})
+    if js_attr is not None:
+        attrs.update({js_attr: True})
     return mark_safe(f"<script{flatatt(attrs)}></script>")
 
 
-def sri_css(attrs: dict, path: str, algorithm: Algorithm):
+def sri_css(attrs: dict, path: str, algorithm: Algorithm, js_attr: JsAttribute):
     attrs.update({"rel": "stylesheet", "type": "text/css", "href": static(path)})
     return mark_safe(f"<link{flatatt(attrs)}/>")
 
@@ -29,7 +32,7 @@ EXTENSIONS = {"js": sri_js, "css": sri_css}
 
 
 @register.simple_tag
-def sri_static(path: str, algorithm: Optional[str] = None):
+def sri_static(path: str, algorithm: Optional[str] = None, js_attr: Optional[str] = None):
     algorithm_type = Algorithm(algorithm or DEFAULT_ALGORITHM)
     extension = os.path.splitext(path)[1][1:]
     sri_method = EXTENSIONS[extension]
@@ -41,11 +44,11 @@ def sri_static(path: str, algorithm: Optional[str] = None):
                 "crossorigin": "anonymous",
             }
         )
-    return sri_method(attrs, path, algorithm_type)
+    return sri_method(attrs, path, algorithm_type, js_attr)
 
 
 @register.simple_tag
-def sri_integrity_static(path: str, algorithm: Optional[str] = None):
+def sri_integrity_static(path: str, algorithm: Optional[str] = None, js_attr: Optional[str] = None):
     return calculate_integrity_of_static(
         path, Algorithm(algorithm or DEFAULT_ALGORITHM)
     )

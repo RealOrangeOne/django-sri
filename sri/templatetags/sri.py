@@ -16,14 +16,14 @@ USE_SRI = getattr(settings, "USE_SRI", not settings.DEBUG)
 register = template.Library()
 
 
-def sri_js(attrs: dict, path: str, algorithm: Algorithm, js_attr: JsAttribute):
+def sri_js(attrs: dict, path: str, algorithm: Algorithm, **kwargs):
     attrs.update({"type": "text/javascript", "src": static(path)})
-    if js_attr is not None:
-        attrs.update({js_attr: True})
+    if 'js_attr' in kwargs:
+        attrs.update({kwargs['js_attr']: True})
     return mark_safe(f"<script{flatatt(attrs)}></script>")
 
 
-def sri_css(attrs: dict, path: str, algorithm: Algorithm, js_attr: JsAttribute):
+def sri_css(attrs: dict, path: str, algorithm: Algorithm, **kwargs):
     attrs.update({"rel": "stylesheet", "type": "text/css", "href": static(path)})
     return mark_safe(f"<link{flatatt(attrs)}/>")
 
@@ -32,7 +32,7 @@ EXTENSIONS = {"js": sri_js, "css": sri_css}
 
 
 @register.simple_tag
-def sri_static(path: str, algorithm: Optional[str] = None, js_attr: Optional[str] = None):
+def sri_static(path: str, algorithm: Optional[str] = None, **kwargs):
     algorithm_type = Algorithm(algorithm or DEFAULT_ALGORITHM)
     extension = os.path.splitext(path)[1][1:]
     sri_method = EXTENSIONS[extension]
@@ -44,11 +44,11 @@ def sri_static(path: str, algorithm: Optional[str] = None, js_attr: Optional[str
                 "crossorigin": "anonymous",
             }
         )
-    return sri_method(attrs, path, algorithm_type, js_attr)
+    return sri_method(attrs, path, algorithm_type, **kwargs)
 
 
 @register.simple_tag
-def sri_integrity_static(path: str, algorithm: Optional[str] = None, js_attr: Optional[str] = None):
+def sri_integrity_static(path: str, algorithm: Optional[str] = None, **kwargs):
     return calculate_integrity_of_static(
         path, Algorithm(algorithm or DEFAULT_ALGORITHM)
     )

@@ -19,10 +19,10 @@ register = template.Library()
 def sri_js(attrs: dict, path: str, algorithm: Algorithm, **kwargs):
     if 'extra_attr' in kwargs:
         extra_attr = kwargs['extra_attr']
-        if ExtraAttribute(extra_attr) is ExtraAttribute.PRELOAD or ExtraAttribute(extra_attr) is ExtraAttribute.PREFETCH:
+        if ExtraAttribute(extra_attr) in (ExtraAttribute.PRELOAD, ExtraAttribute.PREFETCH):
             attrs.update({extra_attr: True})
             attrs.update({"rel": extra_attr, "href": static(path), "as": "script"})
-        elif ExtraAttribute(extra_attr) is ExtraAttribute.DEFER or ExtraAttribute(extra_attr) is ExtraAttribute.ASYNC:
+        elif ExtraAttribute(extra_attr) in (ExtraAttribute.DEFER, ExtraAttribute.ASYNC):
             attrs.update({extra_attr: True})
             attrs.update({"type": "text/javascript", "src": static(path)})
     else:
@@ -33,12 +33,9 @@ def sri_js(attrs: dict, path: str, algorithm: Algorithm, **kwargs):
 def sri_css(attrs: dict, path: str, algorithm: Algorithm, **kwargs):
     if 'extra_attr' in kwargs:
         extra_attr = kwargs['extra_attr']
-        if ExtraAttribute(extra_attr) is ExtraAttribute.PRELOAD or ExtraAttribute(extra_attr) is ExtraAttribute.PREFETCH:
+        if ExtraAttribute(extra_attr) in (ExtraAttribute.PRELOAD, ExtraAttribute.PREFETCH):
             attrs.update({extra_attr: True})
             attrs.update({"rel": extra_attr, "href": static(path), "as": "style"})
-        elif ExtraAttribute(extra_attr) is ExtraAttribute.DEFER or ExtraAttribute(extra_attr) is ExtraAttribute.ASYNC:
-            attrs.update({extra_attr: True})
-            attrs.update({"type": "text/javascript", "src": static(path)})
     else:
         attrs.update({"rel": "stylesheet", "type": "text/css", "href": static(path)})
     return mark_safe(f"<link{flatatt(attrs)}/>")

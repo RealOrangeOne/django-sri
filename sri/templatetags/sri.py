@@ -8,7 +8,7 @@ from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 
 from sri.algorithm import DEFAULT_ALGORITHM, Algorithm
-from sri.attribute import JsAttribute
+from sri.extra_attribute import ExtraAttribute
 from sri.integrity import calculate_integrity_of_static
 
 USE_SRI = getattr(settings, "USE_SRI", not settings.DEBUG)
@@ -17,14 +17,30 @@ register = template.Library()
 
 
 def sri_js(attrs: dict, path: str, algorithm: Algorithm, **kwargs):
-    attrs.update({"type": "text/javascript", "src": static(path)})
-    if 'js_attr' in kwargs:
-        attrs.update({kwargs['js_attr']: True})
+    if 'extra_attr' in kwargs:
+        extra_attr = kwargs['extra_attr']
+        if ExtraAttribute(extra_attr) is ExtraAttribute.PRELOAD or ExtraAttribute(extra_attr) is ExtraAttribute.PREFETCH:
+            attrs.update({extra_attr: True})
+            attrs.update({"rel": extra_attr, "href": static(path), "as": "script"})
+        elif ExtraAttribute(extra_attr) is ExtraAttribute.DEFER or ExtraAttribute(extra_attr) is ExtraAttribute.ASYNC:
+            attrs.update({extra_attr: True})
+            attrs.update({"type": "text/javascript", "src": static(path)})
+    else:
+        attrs.update({"type": "text/javascript", "src": static(path)})
     return mark_safe(f"<script{flatatt(attrs)}></script>")
 
 
 def sri_css(attrs: dict, path: str, algorithm: Algorithm, **kwargs):
-    attrs.update({"rel": "stylesheet", "type": "text/css", "href": static(path)})
+    if 'extra_attr' in kwargs:
+        extra_attr = kwargs['extra_attr']
+        if ExtraAttribute(extra_attr) is ExtraAttribute.PRELOAD or ExtraAttribute(extra_attr) is ExtraAttribute.PREFETCH:
+            attrs.update({extra_attr: True})
+            attrs.update({"rel": extra_attr, "href": static(path), "as": "style"})
+        elif ExtraAttribute(extra_attr) is ExtraAttribute.DEFER or ExtraAttribute(extra_attr) is ExtraAttribute.ASYNC:
+            attrs.update({extra_attr: True})
+            attrs.update({"type": "text/javascript", "src": static(path)})
+    else:
+        attrs.update({"rel": "stylesheet", "type": "text/css", "href": static(path)})
     return mark_safe(f"<link{flatatt(attrs)}/>")
 
 

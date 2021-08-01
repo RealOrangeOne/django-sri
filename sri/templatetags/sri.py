@@ -20,7 +20,6 @@ def sri_js(attrs: dict, path: str, algorithm: Algorithm, **kwargs):
     if 'extra_attr' in kwargs:
         extra_attr = kwargs['extra_attr']
         if ExtraAttribute(extra_attr) in (ExtraAttribute.PRELOAD, ExtraAttribute.PREFETCH):
-            attrs.update({extra_attr: True})
             attrs.update({"rel": extra_attr, "href": static(path), "as": "script"})
         elif ExtraAttribute(extra_attr) in (ExtraAttribute.DEFER, ExtraAttribute.ASYNC):
             attrs.update({extra_attr: True})
@@ -34,7 +33,6 @@ def sri_css(attrs: dict, path: str, algorithm: Algorithm, **kwargs):
     if 'extra_attr' in kwargs:
         extra_attr = kwargs['extra_attr']
         if ExtraAttribute(extra_attr) in (ExtraAttribute.PRELOAD, ExtraAttribute.PREFETCH):
-            attrs.update({extra_attr: True})
             attrs.update({"rel": extra_attr, "href": static(path), "as": "style"})
     else:
         attrs.update({"rel": "stylesheet", "type": "text/css", "href": static(path)})

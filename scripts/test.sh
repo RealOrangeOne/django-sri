@@ -14,6 +14,6 @@ fi
 
 flake8 sri tests setup.py
 
-isort -rc -c sri tests setup.py
+isort --check sri tests setup.py
 
 mypy sri tests setup.py

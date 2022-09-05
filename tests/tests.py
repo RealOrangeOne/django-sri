@@ -1,7 +1,10 @@
 from pathlib import Path
 
 import pytest
+from django.conf import settings
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import caches
+from django.core.management import call_command
 from django.template.loader import render_to_string
 from django.test import override_settings
 
@@ -140,3 +143,20 @@ def test_caches_hash(algorithm, file):
     assert cache.get(cache_key) is None
     digest = sri.hashers.calculate_hash(file_path, algorithm)
     assert cache.get(cache_key) == digest
+
+
+@override_settings(
+    STATICFILES_STORAGE="django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+)
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_manifest_storage(file):
+    call_command("collectstatic", interactive=False, clear=True, verbosity=0)
+
+    file_path = sri.utils.get_static_path(file)
+
+    assert file_path.exists()
+    assert file_path.is_file()
+
+    assert str(file_path).startswith(settings.STATIC_ROOT)
+    assert not str(file_path).endswith(file)
+    assert str(file_path).endswith(staticfiles_storage.stored_name(file))

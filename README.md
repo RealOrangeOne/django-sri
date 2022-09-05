@@ -81,3 +81,5 @@ calculate_integrity_of_static("index.js", Algorithm.SHA512)  # "sha512-..."
 ### _"Does this work with [whitenoise](https://whitenoise.evans.io/en/stable/) or alike?"_
 
 Yes. `django-sri` outputs the static file URL in the same way the builtin `static` template tag does. This means the correct cachebusted URLs are output.
+
+When using a manifest `STATICFILES_STORAGE`, `django-sri` will automatically retrieve the hashed and post-processed file as opposed to the original.

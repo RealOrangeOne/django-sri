@@ -21,5 +21,5 @@ TEMPLATES = [
 
 SECRET_KEY = "abcde12345"
 
-STATIC_ROOT = os.path.join(BASE_DIR, "tests", "static")
+STATIC_ROOT = os.path.join(BASE_DIR, "tests", "collected-static")
 STATIC_URL = "/static/"

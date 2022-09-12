@@ -25,7 +25,12 @@ def sri_css(attrs: dict, path: str, algorithm: Algorithm):
     return mark_safe(f"<link{flatatt(attrs)}/>")
 
 
-EXTENSIONS = {"js": sri_js, "css": sri_css}
+def sri_ico(attrs: dict, path: str, algorithm: Algorithm):
+    attrs.update({"rel": "icon", "href": static(path)})
+    return mark_safe(f"<link{flatatt(attrs)}/>")
+
+
+EXTENSIONS = {"js": sri_js, "css": sri_css, "ico": sri_ico}
 
 
 @register.simple_tag

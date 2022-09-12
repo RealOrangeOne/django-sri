@@ -29,7 +29,7 @@ def test_simple_template():
         in rendered
     )
     assert (
-        '<link crossorigin="anonymous" href="static/favicon.ico" integrity="sha256-F1Fq6ucOhQnomHHVO8+KQj36TQxZ0YpwbTBG9Ob1E/c=" rel="icon">'
+        '<link crossorigin="anonymous" href="/static/favicon.ico" integrity="sha256-F1Fq6ucOhQnomHHVO8+KQj36TQxZ0YpwbTBG9Ob1E/c=" rel="icon"/>'
         in rendered
     )
 

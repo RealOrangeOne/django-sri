@@ -63,6 +63,7 @@ For automatic tag output, the following files are supported:
 
 - `.js`
 - `.css`
+- `.ico`
 
 `sri_integrity_static` is unaffected by this limitation.
 

@@ -11,7 +11,7 @@ from django.test import override_settings
 import sri
 from sri.templatetags import sri as templatetags
 
-TEST_FILES = ["index.css", "index.js", "admin/js/core.js"]
+TEST_FILES = ["index.css", "index.js", "admin/js/core.js", "favicon.ico"]
 
 
 def setup_function(*_):
@@ -26,6 +26,10 @@ def test_simple_template():
     )
     assert (
         '<link crossorigin="anonymous" href="/static/index.css" integrity="sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY=" rel="stylesheet" type="text/css"/>'
+        in rendered
+    )
+    assert (
+        '<link crossorigin="anonymous" href="static/favicon.ico" integrity="sha256-F1Fq6ucOhQnomHHVO8+KQj36TQxZ0YpwbTBG9Ob1E/c=" rel="icon">'
         in rendered
     )
 

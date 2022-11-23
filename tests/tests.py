@@ -10,6 +10,7 @@ from django.test import override_settings
 
 import sri
 from sri.templatetags import sri as templatetags
+from sri.algorithm import DEFAULT_ALGORITHM
 
 TEST_FILES = ["index.css", "index.js", "admin/js/core.js"]
 
@@ -59,6 +60,11 @@ def test_algorithms_template():
 def test_generic_algorithm(algorithm, file):
     val = templatetags.sri_integrity_static(file, algorithm)
     assert val.startswith(f"{algorithm.value}-"), val
+
+
+def test_default_algorithm():
+    val = templatetags.sri_integrity_static("index.js")
+    assert val.startswith(f"{DEFAULT_ALGORITHM.value}-"), val
 
 
 @pytest.mark.parametrize("file", TEST_FILES)

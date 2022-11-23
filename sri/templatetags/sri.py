@@ -36,7 +36,6 @@ def format_attrs(*simple_attrs, **complex_attrs) -> str:
 
 
 def sri_js(path: str, *simple_attrs: str, **complex_attrs: str) -> str:
-    complex_attrs.setdefault("src", static(path))
     return script_tag(path, *simple_attrs, **complex_attrs)
 
 
@@ -46,13 +45,8 @@ def sri_css(path: str, *simple_attrs: str, **complex_attrs: str) -> str:
     return link_tag(path, *simple_attrs, **complex_attrs)
 
 
-def sri_font(path: str, *simple_attrs: str, **complex_attrs: str) -> str:
-    complex_attrs.setdefault("rel", "stylesheet")
-    complex_attrs.setdefault("type", "text/css")
-    return link_tag(path, *simple_attrs, **complex_attrs)
-
-
 def script_tag(path: str, *simple_attrs: str, **complex_attrs: str) -> str:
+    complex_attrs.setdefault("src", static(path))
     return mark_safe(f"<script{format_attrs(*simple_attrs, **complex_attrs)}></script>")
 
 
@@ -66,7 +60,7 @@ EXTENSIONS = {"js": sri_js, "css": sri_css}
 
 @register.simple_tag
 def sri_static(
-    path: str, *simple_attrs: str, algorithm: str | None = None, **complex_attrs: str
+    path: str, *simple_attrs: str, algorithm: str = DEFAULT_ALGORITHM.value, **complex_attrs: str
 ) -> str:
     extension = os.path.splitext(path)[1][1:]
     sri_method = EXTENSIONS.get(extension, link_tag)
@@ -77,6 +71,6 @@ def sri_static(
 
 
 @register.simple_tag
-def sri_integrity_static(path: str, algorithm: str | None = None) -> str:
-    algorithm_type = Algorithm(algorithm or DEFAULT_ALGORITHM)
+def sri_integrity_static(path: str, algorithm: str = DEFAULT_ALGORITHM.value) -> str:
+    algorithm_type = Algorithm(algorithm)
     return calculate_integrity_of_static(path, algorithm_type)

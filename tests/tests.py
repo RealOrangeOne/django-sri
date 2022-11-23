@@ -36,6 +36,10 @@ def test_complex_template():
         '<script crossorigin="anonymous" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" src="/static/index.js" defer async></script>'
         in rendered
     )
+    assert (
+        '<link as="font" crossorigin="anonymous" href="/static/index.woff2" integrity="sha256-hWU2c2zzSsvKYN7tGMnt3t3Oj7GwQZB2aLRhCWYbFSE=">'
+        in rendered
+    ), rendered
 
 
 def test_algorithms_template():
@@ -113,12 +117,6 @@ def test_unknown_algorithm(file):
     with pytest.raises(ValueError) as e:
         templatetags.sri_static(file, algorithm="md5")
     assert e.value.args[0] == "'md5' is not a valid Algorithm"
-
-
-def test_unknown_extension():
-    with pytest.raises(KeyError) as e:
-        templatetags.sri_static("index.md")
-    assert e.value.args[0] == "md"
 
 
 def test_missing_file():

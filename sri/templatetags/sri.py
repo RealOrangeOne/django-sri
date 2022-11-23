@@ -37,12 +37,26 @@ def format_attrs(*simple_attrs, **complex_attrs) -> str:
 
 def sri_js(path: str, *simple_attrs: str, **complex_attrs: str) -> str:
     complex_attrs.setdefault("src", static(path))
-    return mark_safe(f"<script{format_attrs(*simple_attrs, **complex_attrs)}></script>")
+    return script_tag(path, *simple_attrs, **complex_attrs)
 
 
 def sri_css(path: str, *simple_attrs: str, **complex_attrs: str) -> str:
     complex_attrs.setdefault("rel", "stylesheet")
     complex_attrs.setdefault("type", "text/css")
+    return link_tag(path, *simple_attrs, **complex_attrs)
+
+
+def sri_font(path: str, *simple_attrs: str, **complex_attrs: str) -> str:
+    complex_attrs.setdefault("rel", "stylesheet")
+    complex_attrs.setdefault("type", "text/css")
+    return link_tag(path, *simple_attrs, **complex_attrs)
+
+
+def script_tag(path: str, *simple_attrs: str, **complex_attrs: str) -> str:
+    return mark_safe(f"<script{format_attrs(*simple_attrs, **complex_attrs)}></script>")
+
+
+def link_tag(path: str, *simple_attrs: str, **complex_attrs: str) -> str:
     complex_attrs.setdefault("href", static(path))
     return mark_safe(f"<link{format_attrs(*simple_attrs, **complex_attrs)}>")
 
@@ -55,7 +69,7 @@ def sri_static(
     path: str, *simple_attrs: str, algorithm: str | None = None, **complex_attrs: str
 ) -> str:
     extension = os.path.splitext(path)[1][1:]
-    sri_method = EXTENSIONS[extension]
+    sri_method = EXTENSIONS.get(extension, link_tag)
     if USE_SRI:
         complex_attrs.setdefault("crossorigin", "anonymous")
         complex_attrs["integrity"] = sri_integrity_static(path, algorithm)

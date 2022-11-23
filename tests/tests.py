@@ -9,8 +9,8 @@ from django.template.loader import render_to_string
 from django.test import override_settings
 
 import sri
-from sri.templatetags import sri as templatetags
 from sri.algorithm import DEFAULT_ALGORITHM
+from sri.templatetags import sri as templatetags
 
 TEST_FILES = ["index.css", "index.js", "admin/js/core.js"]
 
@@ -194,7 +194,7 @@ def test_default_storage(file):
 
 
 @pytest.mark.parametrize(
-    "simple,complex,output",
+    "empty,extra,output",
     [
         ([], {}, ""),
         (["defer"], {}, " defer"),
@@ -203,6 +203,6 @@ def test_default_storage(file):
         (["defer"], {"type": "text/javascript"}, ' type="text/javascript" defer'),
     ],
 )
-def test_format_attrs(simple, complex, output: str) -> None:
-    elem = templatetags.format_attrs(*simple, **complex)
+def test_format_attrs(empty, extra, output: str) -> None:
+    elem = templatetags.format_attrs(*empty, **extra)
     assert elem == output, elem

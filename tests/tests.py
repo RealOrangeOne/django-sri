@@ -160,3 +160,21 @@ def test_manifest_storage(file):
     assert str(file_path).startswith(settings.STATIC_ROOT)
     assert not str(file_path).endswith(file)
     assert str(file_path).endswith(staticfiles_storage.stored_name(file))
+
+
+@override_settings(
+    STATICFILES_STORAGE="django.contrib.staticfiles.storage.StaticFilesStorage"
+)
+@pytest.mark.parametrize("file", TEST_FILES)
+def test_default_storage(file):
+    # Test for issue #70
+    call_command("collectstatic", interactive=False, clear=True, verbosity=0)
+
+    file_path = sri.utils.get_static_path(file)
+
+    assert file_path.exists()
+    assert file_path.is_file()
+    # If you rollback the changes outlined in issue #70, this
+    # will fail as the path returned will be the source path
+    # and not the destination path.
+    assert str(file_path).startswith(settings.STATIC_ROOT)

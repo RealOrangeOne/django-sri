@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import os.path
-from typing import Optional
 
 from django import template
 from django.conf import settings
@@ -15,37 +16,65 @@ USE_SRI = getattr(settings, "USE_SRI", not settings.DEBUG)
 register = template.Library()
 
 
-def sri_js(attrs: dict, path: str, algorithm: Algorithm):
-    attrs.update({"type": "text/javascript", "src": static(path)})
-    return mark_safe(f"<script{flatatt(attrs)}></script>")
+def format_attrs(*empty_tag_attrs, **extra_tag_attrs) -> str:
+    """
+    Flatten and format list and dict params.
+
+    The returned value will be a string with a leading " " that is a
+    combination of "name=value" and "name" params:
+
+        ' src="/" defer'
+        ' href="/" rel="stylesheet"'
+
+    """
+    extra_attrs = flatatt(extra_tag_attrs)
+    if empty_tag_attrs:
+        empty_attrs = " ".join(empty_tag_attrs)
+        return f"{extra_attrs} {empty_attrs}".rstrip()
+    return extra_attrs.rstrip()
 
 
-def sri_css(attrs: dict, path: str, algorithm: Algorithm):
-    attrs.update({"rel": "stylesheet", "type": "text/css", "href": static(path)})
-    return mark_safe(f"<link{flatatt(attrs)}/>")
+def sri_js(path: str, *empty_tag_attrs: str, **extra_tag_attrs: str) -> str:
+    return script_tag(path, *empty_tag_attrs, **extra_tag_attrs)
+
+
+def sri_css(path: str, *empty_tag_attrs: str, **extra_tag_attrs: str) -> str:
+    extra_tag_attrs.setdefault("rel", "stylesheet")
+    extra_tag_attrs.setdefault("type", "text/css")
+    return link_tag(path, *empty_tag_attrs, **extra_tag_attrs)
+
+
+def script_tag(path: str, *empty_tag_attrs: str, **extra_tag_attrs: str) -> str:
+    extra_tag_attrs.setdefault("src", static(path))
+    return mark_safe(
+        f"<script{format_attrs(*empty_tag_attrs, **extra_tag_attrs)}></script>"
+    )
+
+
+def link_tag(path: str, *empty_tag_attrs: str, **extra_tag_attrs: str) -> str:
+    extra_tag_attrs.setdefault("href", static(path))
+    return mark_safe(f"<link{format_attrs(*empty_tag_attrs, **extra_tag_attrs)}>")
 
 
 EXTENSIONS = {"js": sri_js, "css": sri_css}
 
 
 @register.simple_tag
-def sri_static(path: str, algorithm: Optional[str] = None):
-    algorithm_type = Algorithm(algorithm or DEFAULT_ALGORITHM)
+def sri_static(
+    path: str,
+    *empty_tag_attrs: str,
+    algorithm: str = DEFAULT_ALGORITHM.value,
+    **extra_tag_attrs: str,
+) -> str:
     extension = os.path.splitext(path)[1][1:]
-    sri_method = EXTENSIONS[extension]
-    attrs = {}
+    sri_method = EXTENSIONS.get(extension, link_tag)
     if USE_SRI:
-        attrs.update(
-            {
-                "integrity": calculate_integrity_of_static(path, algorithm_type),
-                "crossorigin": "anonymous",
-            }
-        )
-    return sri_method(attrs, path, algorithm_type)
+        extra_tag_attrs.setdefault("crossorigin", "anonymous")
+        extra_tag_attrs["integrity"] = sri_integrity_static(path, algorithm)
+    return sri_method(path, *empty_tag_attrs, **extra_tag_attrs)
 
 
 @register.simple_tag
-def sri_integrity_static(path: str, algorithm: Optional[str] = None):
-    return calculate_integrity_of_static(
-        path, Algorithm(algorithm or DEFAULT_ALGORITHM)
-    )
+def sri_integrity_static(path: str, algorithm: str = DEFAULT_ALGORITHM.value) -> str:
+    algorithm_type = Algorithm(algorithm)
+    return calculate_integrity_of_static(path, algorithm_type)

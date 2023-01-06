@@ -12,6 +12,8 @@ HASHERS = {
     Algorithm.SHA512: hashlib.sha512,
 }
 
+READ_BUFFER_SIZE = 65536  # 64k
+
 
 def calculate_hash(path: Path, algorithm: Algorithm) -> str:
     cache = get_cache()
@@ -22,7 +24,7 @@ def calculate_hash(path: Path, algorithm: Algorithm) -> str:
         hasher = HASHERS[algorithm]()
         with path.open("rb") as f:
             while True:
-                data = f.read(hasher.block_size)
+                data = f.read(READ_BUFFER_SIZE)
                 if not data:
                     break
                 hasher.update(data)

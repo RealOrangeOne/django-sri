@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 export PATH=env/bin:${PATH}
+export PYTHONPATH=$PWD
 
 set -ex
 

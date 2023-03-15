@@ -12,8 +12,6 @@ then
     black sri tests setup.py --check
 fi
 
-flake8 sri tests setup.py
-
-isort --check sri tests setup.py
+ruff check sri tests setup.py
 
 mypy sri tests setup.py

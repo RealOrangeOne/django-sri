@@ -37,15 +37,26 @@ For performance, the hashes of files are caches in Django's [caching framework](
 
 #### Algorithms
 
-The SRI standard supports 3 algorithms: sha256, sha384 and sha512. By default, SHA256 is used. To override this, supply an additional argument to the `sri` template tag (or the specific ones):
+The SRI standard supports 3 algorithms: sha256, sha384 and sha512. By default, SHA256 is used. To override this, supply an additional `algorithm` argument to the `sri` template tag (or the specific ones):
 
 ```html
 {% load sri %}
 
-{% sri_static "index.js" "sha512" %} <!-- Will output "<script src='/static/index.js' integrity='sha512-...'></script>" -->
+{% sri_static "index.js" algorithm="sha512" %} <!-- Will output "<script src='/static/index.js' integrity='sha512-...'></script>" -->
 ```
 
 The default algorithm can be changed by setting `SRI_ALGORITHM` to the required algorithm.
+
+#### Additional attributes
+
+To add additional attributes to the output tag (such as `async` / `defer`), specify them as additional arguments to the template tag:
+
+```html
+{% load sri %}
+
+{% sri_static "index.js" 'defer' 'async'%}
+{% sri_static "index.woff2" preload as="font" %}
+```
 
 #### Just the integrity value
 
@@ -63,6 +74,8 @@ For automatic tag output, the following files are supported:
 
 - `.js`
 - `.css`
+
+Unknown extensions will emit a `link` tag with the URL as the `href` attribute.
 
 `sri_integrity_static` is unaffected by this limitation.
 

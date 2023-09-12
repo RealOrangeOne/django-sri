@@ -5,7 +5,7 @@ with open("README.md") as f:
 
 setup(
     name="django-sri",
-    version="0.6.0",
+    version="0.7.0",
     url="https://github.com/RealOrangeOne/django-sri",
     author="Jake Howard",
     description="Subresource Integrity for Django",

@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 import pytest
@@ -17,6 +18,7 @@ TEST_FILES = ["index.css", "index.js", "admin/js/core.js"]
 
 def setup_function(*_):
     sri.utils.get_cache().clear()  # Clear cache between each test method
+    shutil.rmtree(settings.STATIC_ROOT, ignore_errors=True)
 
 
 def test_simple_template():

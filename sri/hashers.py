@@ -21,13 +21,16 @@ def calculate_hash(path: Path, algorithm: Algorithm) -> str:
     file_hash = cache.get(cache_key)
     if file_hash is None:
         # Cache miss, do the calculation
-        hasher = HASHERS[algorithm]()
         with path.open("rb") as f:
-            while True:
-                data = f.read(READ_BUFFER_SIZE)
-                if not data:
-                    break
-                hasher.update(data)
+            if hasattr(hashlib, "file_digest"):
+                hasher = hashlib.file_digest(f, HASHERS[algorithm])
+            else:
+                hasher = HASHERS[algorithm]()
+                while True:
+                    data = f.read(READ_BUFFER_SIZE)
+                    if not data:
+                        break
+                    hasher.update(data)
         file_hash = base64.b64encode(hasher.digest()).decode()
         cache.set(cache_key, file_hash)
     return file_hash

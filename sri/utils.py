@@ -2,6 +2,7 @@ import logging
 import os
 from pathlib import Path
 
+from django.conf import settings
 from django.contrib.staticfiles.finders import find as find_static_file
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import DEFAULT_CACHE_ALIAS, caches
@@ -15,7 +16,7 @@ def get_static_path(path: str) -> Path:
     Resolves a path commonly passed to `{% static %}` into a filesystem path
     """
 
-    if hasattr(staticfiles_storage, "stored_name"):
+    if (not settings.DEBUG) and hasattr(staticfiles_storage, "stored_name"):
         path = staticfiles_storage.stored_name(path)
 
     collected_file_path = staticfiles_storage.path(path)

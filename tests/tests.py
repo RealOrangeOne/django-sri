@@ -9,7 +9,7 @@ from django.core.management import call_command
 from django.template.loader import render_to_string
 
 import sri
-from sri.algorithm import DEFAULT_ALGORITHM
+from sri.algorithm import Algorithm
 from sri.templatetags import sri as templatetags
 
 TEST_FILES = ["index.css", "index.js", "admin/js/core.js"]
@@ -66,7 +66,7 @@ def test_generic_algorithm(algorithm, file):
 
 def test_default_algorithm():
     val = templatetags.sri_integrity_static("index.js")
-    assert val.startswith(f"{DEFAULT_ALGORITHM.value}-"), val
+    assert val.startswith(f"{Algorithm.get_default().value}-"), val
 
 
 @pytest.mark.parametrize("file", TEST_FILES)
@@ -81,7 +81,7 @@ def test_get_static_path(file):
 
 
 def test_default_algorithm_exists():
-    assert sri.algorithm.DEFAULT_ALGORITHM in sri.hashers.HASHERS
+    assert Algorithm.get_default() in sri.hashers.HASHERS
 
 
 @pytest.mark.parametrize("algorithm", sri.Algorithm)

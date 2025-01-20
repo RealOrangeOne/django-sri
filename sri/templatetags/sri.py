@@ -8,7 +8,7 @@ from django.forms.utils import flatatt
 from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 
-from sri.algorithm import DEFAULT_ALGORITHM, Algorithm
+from sri.algorithm import Algorithm
 from sri.integrity import calculate_integrity_of_static
 
 USE_SRI = getattr(settings, "USE_SRI", not settings.DEBUG)
@@ -63,18 +63,24 @@ EXTENSIONS = {"js": sri_js, "css": sri_css}
 def sri_static(
     path: str,
     *empty_tag_attrs: str,
-    algorithm: str = DEFAULT_ALGORITHM.value,
+    algorithm: str | None = None,
     **extra_tag_attrs: str,
 ) -> str:
     extension = os.path.splitext(path)[1][1:]
     sri_method = EXTENSIONS.get(extension, link_tag)
+
+    algorithm_type = (
+        Algorithm(algorithm) if algorithm is not None else Algorithm.get_default()
+    )
+
     if USE_SRI:
         extra_tag_attrs.setdefault("crossorigin", "anonymous")
-        extra_tag_attrs["integrity"] = sri_integrity_static(path, algorithm)
+        extra_tag_attrs["integrity"] = sri_integrity_static(path, algorithm_type)
     return sri_method(path, *empty_tag_attrs, **extra_tag_attrs)
 
 
 @register.simple_tag
-def sri_integrity_static(path: str, algorithm: str = DEFAULT_ALGORITHM.value) -> str:
-    algorithm_type = Algorithm(algorithm)
-    return calculate_integrity_of_static(path, algorithm_type)
+def sri_integrity_static(path: str, algorithm: str | None = None) -> str:
+    return calculate_integrity_of_static(
+        path, Algorithm(algorithm) if algorithm is not None else Algorithm.get_default()
+    )

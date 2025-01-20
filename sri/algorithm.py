@@ -9,5 +9,6 @@ class Algorithm(Enum):
     SHA384 = "sha384"
     SHA512 = "sha512"
 
-
-DEFAULT_ALGORITHM = Algorithm(getattr(settings, "SRI_ALGORITHM", Algorithm.SHA256))
+    @classmethod
+    def get_default(cls) -> "Algorithm":
+        return Algorithm(getattr(settings, "SRI_ALGORITHM", Algorithm.SHA256))

@@ -44,5 +44,5 @@ def calculate_hash(path: Path, algorithm: Algorithm) -> str:
 
 @lru_cache(maxsize=None)
 def get_cache_key(path: Path, algorithm: Algorithm) -> str:
-    path_hash = hashlib.sha1(str(path).encode()).hexdigest()
+    path_hash = hashlib.sha1(str(path).encode(), usedforsecurity=False).hexdigest()
     return f"sri-{path_hash}-{algorithm.value}"

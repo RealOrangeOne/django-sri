@@ -8,10 +8,7 @@ set -ex
 
 pytest --verbose --cov sri/ --cov-report term --cov-report html
 
-if hash black 2>/dev/null;
-then
-    black sri tests setup.py --check
-fi
+ruff format sri tests setup.py --check
 
 ruff check sri tests setup.py
 

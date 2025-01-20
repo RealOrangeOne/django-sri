@@ -1,11 +1,12 @@
 from pathlib import Path
+from typing import Optional
 
 from sri.algorithm import Algorithm
 from sri.hashers import calculate_hash
 from sri.utils import get_static_path
 
 
-def calculate_integrity(path: Path, algorithm: Algorithm | None = None) -> str:
+def calculate_integrity(path: Path, algorithm: Optional[Algorithm] = None) -> str:
     if algorithm is None:
         algorithm = Algorithm.get_default()
 
@@ -13,6 +14,6 @@ def calculate_integrity(path: Path, algorithm: Algorithm | None = None) -> str:
 
 
 def calculate_integrity_of_static(
-    static_path: str, algorithm: Algorithm | None = None
+    static_path: str, algorithm: Optional[Algorithm] = None
 ) -> str:
     return calculate_integrity(get_static_path(static_path), algorithm)

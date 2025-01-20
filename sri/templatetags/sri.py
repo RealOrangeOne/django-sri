@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 import os.path
+from typing import Optional
 
 from django import template
 from django.conf import settings
@@ -63,7 +62,7 @@ EXTENSIONS = {"js": sri_js, "css": sri_css}
 def sri_static(
     path: str,
     *empty_tag_attrs: str,
-    algorithm: str | None = None,
+    algorithm: Optional[str] = None,
     **extra_tag_attrs: str,
 ) -> str:
     extension = os.path.splitext(path)[1][1:]
@@ -80,7 +79,7 @@ def sri_static(
 
 
 @register.simple_tag
-def sri_integrity_static(path: str, algorithm: str | None = None) -> str:
+def sri_integrity_static(path: str, algorithm: Optional[str] = None) -> str:
     return calculate_integrity_of_static(
         path, Algorithm(algorithm) if algorithm is not None else Algorithm.get_default()
     )

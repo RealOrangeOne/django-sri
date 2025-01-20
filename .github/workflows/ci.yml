@@ -34,4 +34,6 @@ jobs:
       - name: Run tests
         run: scripts/test.sh
       - name: Build package
-        run: python setup.py clean sdist
+        run: |
+          pip install --upgrade setuptools twine build wheel
+          python -m build

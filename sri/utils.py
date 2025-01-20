@@ -4,8 +4,6 @@ from pathlib import Path
 
 from django.contrib.staticfiles.finders import find as find_static_file
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.core.cache import DEFAULT_CACHE_ALIAS, caches
-from django.core.cache.backends.base import InvalidCacheBackendError
 
 logger = logging.getLogger(__name__)
 
@@ -28,10 +26,3 @@ def get_static_path(path: str) -> Path:
         return Path(source_static_file_path)
 
     raise FileNotFoundError(path)
-
-
-def get_cache():
-    try:
-        return caches["sri"]
-    except InvalidCacheBackendError:
-        return caches[DEFAULT_CACHE_ALIAS]

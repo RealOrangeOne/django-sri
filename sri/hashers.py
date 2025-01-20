@@ -3,8 +3,10 @@ import hashlib
 from functools import lru_cache
 from pathlib import Path
 
+from django.core.cache import DEFAULT_CACHE_ALIAS, caches
+from django.core.cache.backends.base import InvalidCacheBackendError
+
 from sri.algorithm import Algorithm
-from sri.utils import get_cache
 
 HASHERS = {
     Algorithm.SHA256: hashlib.sha256,
@@ -16,7 +18,11 @@ READ_BUFFER_SIZE = 2**18  # 256k - matches `hashlib.file_digest`
 
 
 def calculate_hash(path: Path, algorithm: Algorithm) -> str:
-    cache = get_cache()
+    try:
+        cache = caches["sri"]
+    except InvalidCacheBackendError:
+        cache = caches[DEFAULT_CACHE_ALIAS]
+
     cache_key = get_cache_key(path, algorithm)
     file_hash = cache.get(cache_key)
     if file_hash is None:

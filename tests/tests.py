@@ -40,7 +40,7 @@ def test_complex_template():
         in rendered
     )
     assert (
-        '<link as="font" crossorigin="anonymous" href="/static/index.woff2" integrity="sha256-hWU2c2zzSsvKYN7tGMnt3t3Oj7GwQZB2aLRhCWYbFSE=">'
+        '<link as="font" crossorigin="anonymous" href="/static/index.woff2" integrity="sha256-hWU2c2zzSsvKYN7tGMnt3t3Oj7GwQZB2aLRhCWYbFSE=" preload>'
         in rendered
     ), rendered
 
@@ -53,6 +53,18 @@ def test_algorithms_template():
     )
     assert (
         '<link crossorigin="anonymous" href="/static/index.css" integrity="sha512-7v9G7AKwpjnlEYhw9GdXu/9G8bq0PqM427/QmgH2TufqEUcjsANEoyCoOkpV8TBCnbQigwNKpMaZNskJG8Ejdw==" rel="stylesheet" type="text/css">'
+        in rendered
+    )
+
+
+def test_jinja2_template():
+    rendered = render_to_string("complex.j2")
+    assert (
+        '<script crossorigin="anonymous" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" src="/static/index.js" defer async></script>'
+        in rendered
+    )
+    assert (
+        '<link as="font" crossorigin="anonymous" href="/static/index.woff2" integrity="sha256-hWU2c2zzSsvKYN7tGMnt3t3Oj7GwQZB2aLRhCWYbFSE=" preload>'
         in rendered
     )
 

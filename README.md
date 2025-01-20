@@ -96,3 +96,7 @@ calculate_integrity_of_static("index.js", Algorithm.SHA512)  # "sha512-..."
 Yes. `django-sri` outputs the static file URL in the same way the builtin `static` template tag does. This means the correct cachebusted URLs are output.
 
 When using a manifest `STATICFILES_STORAGE`, `django-sri` will automatically retrieve the hashed and post-processed file as opposed to the original.
+
+### `jinja2`
+
+Support for `jinja2` templates is provided using the `sri.jinja2.sri` extension, which adds the documented Django template tags as global functions. These functions work identically to the Django template versions.

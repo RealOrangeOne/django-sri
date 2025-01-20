@@ -7,7 +7,6 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import caches
 from django.core.management import call_command
 from django.template.loader import render_to_string
-from django.test import override_settings
 
 import sri
 from sri.algorithm import DEFAULT_ALGORITHM
@@ -140,17 +139,16 @@ def test_uses_default_cache():
     assert sri.utils.get_cache() == caches["default"]
 
 
-@override_settings(
-    CACHES={"sri": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}
-)
-def test_uses_dedicated_cache():
+def test_uses_dedicated_cache(settings):
+    settings.CACHES = {
+        "sri": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}
+    }
     assert sri.utils.get_cache() == caches["sri"]
 
 
 @pytest.mark.parametrize("algorithm", sri.Algorithm)
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_caches_hash(algorithm, file):
-
     file_path = sri.utils.get_static_path(file)
     cache_key = sri.hashers.get_cache_key(file_path, algorithm)
     cache = sri.utils.get_cache()
@@ -160,11 +158,13 @@ def test_caches_hash(algorithm, file):
     assert cache.get(cache_key) == digest
 
 
-@override_settings(
-    STATICFILES_STORAGE="django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
-)
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_manifest_storage(file):
+def test_manifest_storage(settings, file):
+    settings.STORAGES = {
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+        }
+    }
     call_command("collectstatic", interactive=False, clear=True, verbosity=0)
 
     file_path = sri.utils.get_static_path(file)
@@ -177,9 +177,6 @@ def test_manifest_storage(file):
     assert str(file_path).endswith(staticfiles_storage.stored_name(file))
 
 
-@override_settings(
-    STATICFILES_STORAGE="django.contrib.staticfiles.storage.StaticFilesStorage"
-)
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_default_storage(file):
     # Test for issue #70

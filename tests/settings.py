@@ -17,6 +17,12 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {},
     },
+    {
+        "BACKEND": "django.template.backends.jinja2.Jinja2",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {"environment": "tests.utils.create_jinja2_environment"},
+    },
 ]
 
 SECRET_KEY = "abcde12345"

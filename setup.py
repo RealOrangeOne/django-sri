@@ -15,7 +15,7 @@ setup(
     packages=find_packages(include=["sri*"]),
     package_data={"sri": ["py.typed"]},
     install_requires=["Django>=4.2"],
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     keywords="django subresource integrity sri",
     classifiers=[
         "Environment :: Web Environment",

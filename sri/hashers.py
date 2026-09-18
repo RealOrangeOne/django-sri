@@ -1,6 +1,6 @@
 import base64
 import hashlib
-from functools import lru_cache
+from functools import cache
 from pathlib import Path
 
 from django.core.cache import DEFAULT_CACHE_ALIAS, caches
@@ -24,7 +24,7 @@ def calculate_hash(path: Path, algorithm: Algorithm) -> str:
         cache = caches[DEFAULT_CACHE_ALIAS]
 
     cache_key = get_cache_key(path, algorithm)
-    file_hash = cache.get(cache_key)
+    file_hash: str | None = cache.get(cache_key)
     if file_hash is None:
         # Cache miss, do the calculation
         with path.open("rb") as f:
@@ -42,7 +42,7 @@ def calculate_hash(path: Path, algorithm: Algorithm) -> str:
     return file_hash
 
 
-@lru_cache(maxsize=None)
+@cache
 def get_cache_key(path: Path, algorithm: Algorithm) -> str:
     path_hash = hashlib.sha1(str(path).encode(), usedforsecurity=False).hexdigest()
     return f"sri-{path_hash}-{algorithm.value}"

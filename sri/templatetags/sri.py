@@ -1,5 +1,4 @@
 import os.path
-from typing import Optional
 
 from django import template
 from django.conf import settings
@@ -15,7 +14,7 @@ USE_SRI = getattr(settings, "USE_SRI", not settings.DEBUG)
 register = template.Library()
 
 
-def format_attrs(*empty_tag_attrs, **extra_tag_attrs) -> str:
+def format_attrs(*empty_tag_attrs: str, **extra_tag_attrs: str) -> str:
     """
     Flatten and format list and dict params.
 
@@ -45,14 +44,14 @@ def sri_css(path: str, *empty_tag_attrs: str, **extra_tag_attrs: str) -> str:
 
 def script_tag(path: str, *empty_tag_attrs: str, **extra_tag_attrs: str) -> str:
     extra_tag_attrs.setdefault("src", static(path))
-    return mark_safe(
+    return mark_safe(  # noqa: S308
         f"<script{format_attrs(*empty_tag_attrs, **extra_tag_attrs)}></script>"
     )
 
 
 def link_tag(path: str, *empty_tag_attrs: str, **extra_tag_attrs: str) -> str:
     extra_tag_attrs.setdefault("href", static(path))
-    return mark_safe(f"<link{format_attrs(*empty_tag_attrs, **extra_tag_attrs)}>")
+    return mark_safe(f"<link{format_attrs(*empty_tag_attrs, **extra_tag_attrs)}>")  # noqa: S308
 
 
 EXTENSIONS = {"js": sri_js, "css": sri_css}
@@ -62,7 +61,7 @@ EXTENSIONS = {"js": sri_js, "css": sri_css}
 def sri_static(
     path: str,
     *empty_tag_attrs: str,
-    algorithm: Optional[str] = None,
+    algorithm: str | None = None,
     **extra_tag_attrs: str,
 ) -> str:
     extension = os.path.splitext(path)[1][1:]
@@ -79,7 +78,7 @@ def sri_static(
 
 
 @register.simple_tag
-def sri_integrity_static(path: str, algorithm: Optional[str] = None) -> str:
+def sri_integrity_static(path: str, algorithm: str | Algorithm | None = None) -> str:
     return calculate_integrity_of_static(
         path, Algorithm(algorithm) if algorithm is not None else Algorithm.get_default()
     )

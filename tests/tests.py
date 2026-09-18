@@ -10,7 +10,7 @@ from django.core.management import call_command
 from django.template import engines
 
 import sri
-from sri.algorithm import Algorithm
+from sri import Algorithm
 from sri.templatetags import sri as templatetags
 
 TEST_FILES = ["index.css", "index.js", "admin/js/core.js"]
@@ -39,7 +39,7 @@ def test_get_static_path(file: str) -> None:
 
 
 def test_default_algorithm_exists() -> None:
-    assert Algorithm.get_default() in sri.hashers.HASHERS
+    assert Algorithm.get_default() in sri.HASHERS
 
 
 @pytest.mark.parametrize("algorithm", sri.Algorithm)
@@ -84,11 +84,11 @@ def test_app_file() -> None:
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_caches_hash(algorithm: Algorithm, file: str) -> None:
     file_path = sri.utils.get_static_path(file)
-    cache_key = sri.hashers.get_cache_key(file_path, algorithm)
+    cache_key = sri.utils.get_cache_key(file_path, algorithm)
     cache = caches["default"]
 
     assert cache.get(cache_key) is None
-    digest = sri.hashers.calculate_hash(file_path, algorithm)
+    digest = sri.calculate_hash(file_path, algorithm)
     assert cache.get(cache_key) == digest
 
 

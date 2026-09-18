@@ -2,8 +2,7 @@ from django import template
 from django.conf import settings
 from django.forms.utils import flatatt
 
-from sri.algorithm import Algorithm
-from sri.integrity import calculate_integrity_of_static
+from sri import Algorithm, calculate_integrity_of_static
 
 register = template.Library()
 

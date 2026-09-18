@@ -1,9 +1,15 @@
+import hashlib
 import logging
 import os
+from functools import cache
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from django.contrib.staticfiles.finders import find as find_static_file
 from django.contrib.staticfiles.storage import staticfiles_storage
+
+if TYPE_CHECKING:
+    from sri import Algorithm
 
 logger = logging.getLogger(__name__)
 
@@ -26,3 +32,9 @@ def get_static_path(path: str) -> Path:
         return Path(source_static_file_path)
 
     raise FileNotFoundError(path)
+
+
+@cache
+def get_cache_key(path: Path, algorithm: "Algorithm") -> str:
+    path_hash = hashlib.sha1(str(path).encode(), usedforsecurity=False).hexdigest()
+    return f"sri-{path_hash}-{algorithm.value}"

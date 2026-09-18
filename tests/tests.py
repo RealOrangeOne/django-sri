@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import caches
 from django.core.management import call_command
+from django.template import Context, Engine
 from django.template.loader import render_to_string
 
 import sri
@@ -208,3 +209,34 @@ def test_default_storage(file: str) -> None:
 def test_format_attrs(empty: list, extra: dict, output: str) -> None:
     elem = templatetags.format_attrs(*empty, **extra)
     assert elem == output, elem
+
+
+@pytest.mark.parametrize(
+    "template,result",
+    [
+        (
+            "{% sri_attrs 'index.js' %}",
+            'crossorigin="anonymous" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI="',
+        ),
+        (
+            "{% sri_attrs 'index.js' 'sha512' %}",
+            'crossorigin="anonymous" integrity="sha512-cw/Y369hULp54riZ5vM+t1Q/AkacZnq+JyqpmjXQox0gJKosqpa6CD3mqC2fQHokN13H0fqBQgnfb91lSFAOGQ=="',
+        ),
+        (
+            "{% sri_attrs 'index.css' %}",
+            'crossorigin="anonymous" integrity="sha256-fsqAKvNYgo9VQgSc4rD93SiW/AjKFwLtWlPi6qviBxY="',
+        ),
+        (
+            "{% sri_attrs 'index.woff2' %}",
+            'crossorigin="anonymous" integrity="sha256-hWU2c2zzSsvKYN7tGMnt3t3Oj7GwQZB2aLRhCWYbFSE="',
+        ),
+    ],
+)
+def test_attrs(template: str, result: str) -> None:
+    assert (
+        Engine.get_default()
+        .from_string("{% load sri %}" + template)
+        .render(Context())
+        .strip()
+        == result
+    )

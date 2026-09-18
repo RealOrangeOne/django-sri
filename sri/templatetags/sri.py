@@ -82,3 +82,18 @@ def sri_integrity_static(path: str, algorithm: str | Algorithm | None = None) ->
     return calculate_integrity_of_static(
         path, Algorithm(algorithm) if algorithm is not None else Algorithm.get_default()
     )
+
+
+@register.simple_tag
+def sri_attrs(path: str, algorithm: str | Algorithm | None = None) -> str:
+    return flatatt(
+        {
+            "integrity": calculate_integrity_of_static(
+                path,
+                Algorithm(algorithm)
+                if algorithm is not None
+                else Algorithm.get_default(),
+            ),
+            "crossorigin": "anonymous",
+        }
+    )

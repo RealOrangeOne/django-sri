@@ -1,7 +1,7 @@
 import hashlib
 import logging
 import os
-from functools import cache
+from functools import lru_cache
 from pathlib import Path
 
 from django.contrib.staticfiles.finders import find as find_static_file
@@ -30,7 +30,7 @@ def get_static_path(path: str) -> Path:
     raise FileNotFoundError(path)
 
 
-@cache
+@lru_cache(maxsize=500)
 def get_cache_key(path: Path, algorithm: str) -> str:
     path_hash = hashlib.sha1(str(path).encode(), usedforsecurity=False).hexdigest()
     return f"sri-{path_hash}-{algorithm}"

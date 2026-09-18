@@ -73,12 +73,14 @@ def sri_static(
 
     if USE_SRI:
         extra_tag_attrs.setdefault("crossorigin", "anonymous")
-        extra_tag_attrs["integrity"] = sri_integrity_static(path, algorithm_type)
+        extra_tag_attrs["integrity"] = calculate_integrity_of_static(
+            path, algorithm_type
+        )
     return sri_method(path, *empty_tag_attrs, **extra_tag_attrs)
 
 
 @register.simple_tag
-def sri_integrity_static(path: str, algorithm: str | Algorithm | None = None) -> str:
+def sri_integrity(path: str, algorithm: str | Algorithm | None = None) -> str:
     return calculate_integrity_of_static(
         path, Algorithm(algorithm) if algorithm is not None else Algorithm.get_default()
     )

@@ -1,7 +1,7 @@
 from jinja2 import Environment
 from jinja2.ext import Extension
 
-from sri.templatetags.sri import sri_integrity_static, sri_static
+from sri.templatetags.sri import sri_integrity, sri_static
 
 
 class SRIExtension(Extension):
@@ -9,7 +9,7 @@ class SRIExtension(Extension):
         super().__init__(environment)
 
         environment.globals["sri_static"] = sri_static
-        environment.globals["sri_integrity_static"] = sri_integrity_static
+        environment.globals["sri_integrity"] = sri_integrity
 
 
 # Shorthand

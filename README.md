@@ -60,12 +60,12 @@ To add additional attributes to the output tag (such as `async` / `defer`), spec
 
 #### Just the integrity value
 
-To retrieve just the integrity hash (the contents of the `integrity` attribute), you can use the `{% sri_integrity_static %}` tag, which supports the same arguments as the other tags.
+To retrieve just the integrity hash (the contents of the `integrity` attribute), you can use the `{% sri_integrity %}` tag, which supports the same arguments as the other tags.
 
 ```html
 {% load sri %}
 
-{% sri_integrity_static "index.js" "sha512" %} <!-- Will output "sha512-..." -->
+{% sri_integrity "index.js" "sha512" %} <!-- Will output "sha512-..." -->
 ```
 
 #### Supported Files
@@ -77,7 +77,7 @@ For automatic tag output, the following files are supported:
 
 Unknown extensions will emit a `link` tag with the URL as the `href` attribute.
 
-`sri_integrity_static` is unaffected by this limitation.
+`sri_integrity` is unaffected by this limitation.
 
 ### API
 

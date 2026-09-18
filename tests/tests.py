@@ -74,12 +74,12 @@ def test_jinja2_template() -> None:
 @pytest.mark.parametrize("algorithm", sri.Algorithm)
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_generic_algorithm(algorithm: Algorithm, file: str) -> None:
-    val = templatetags.sri_integrity_static(file, algorithm)
+    val = templatetags.sri_integrity(file, algorithm)
     assert val.startswith(f"{algorithm.value}-"), val
 
 
 def test_default_algorithm() -> None:
-    val = templatetags.sri_integrity_static("index.js")
+    val = templatetags.sri_integrity("index.js")
     assert val.startswith(f"{Algorithm.get_default().value}-"), val
 
 
@@ -128,10 +128,8 @@ def test_disable_sri(file: str) -> None:
 
 @pytest.mark.parametrize("algorithm", sri.Algorithm)
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_sri_integrity_static(algorithm: Algorithm, file: str) -> None:
-    assert templatetags.sri_integrity_static(file, algorithm).startswith(
-        f"{algorithm.value}-"
-    )
+def test_sri_integrity_tag(algorithm: Algorithm, file: str) -> None:
+    assert templatetags.sri_integrity(file, algorithm).startswith(f"{algorithm.value}-")
 
 
 @pytest.mark.parametrize("file", TEST_FILES)

@@ -1,5 +1,6 @@
 import shutil
 from pathlib import Path
+from typing import Any
 
 import pytest
 from django.conf import settings
@@ -15,13 +16,13 @@ from sri.templatetags import sri as templatetags
 TEST_FILES = ["index.css", "index.js", "admin/js/core.js"]
 
 
-def setup_function(*_):
+def setup_function(*_: Any) -> None:
     for cache in caches.all():
         cache.clear()  # Clear cache between each test method
     shutil.rmtree(settings.STATIC_ROOT, ignore_errors=True)
 
 
-def test_simple_template():
+def test_simple_template() -> None:
     rendered = render_to_string("simple.html")
     assert (
         '<script crossorigin="anonymous" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" src="/static/index.js"></script>'
@@ -33,7 +34,7 @@ def test_simple_template():
     )
 
 
-def test_complex_template():
+def test_complex_template() -> None:
     rendered = render_to_string("complex.html")
     assert (
         '<script crossorigin="anonymous" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" src="/static/index.js" defer async></script>'
@@ -45,7 +46,7 @@ def test_complex_template():
     ), rendered
 
 
-def test_algorithms_template():
+def test_algorithms_template() -> None:
     rendered = render_to_string("algorithms.html")
     assert (
         '<script crossorigin="anonymous" integrity="sha384-dExnf54EbXTQ1VmweBEJRWX3MPT4xeDV5p71GIX2hpvV+8B/kzo3SObynuveYt9w" src="/static/index.js"></script>'
@@ -57,7 +58,7 @@ def test_algorithms_template():
     )
 
 
-def test_jinja2_template():
+def test_jinja2_template() -> None:
     rendered = render_to_string("complex.j2")
     assert (
         '<script crossorigin="anonymous" integrity="sha256-VROI/fAMCWgkTthVtzzvHtPkkxvpysdZbcqLdVMtwOI=" src="/static/index.js" defer async></script>'
@@ -71,18 +72,18 @@ def test_jinja2_template():
 
 @pytest.mark.parametrize("algorithm", sri.Algorithm)
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_generic_algorithm(algorithm, file):
+def test_generic_algorithm(algorithm: Algorithm, file: str) -> None:
     val = templatetags.sri_integrity_static(file, algorithm)
     assert val.startswith(f"{algorithm.value}-"), val
 
 
-def test_default_algorithm():
+def test_default_algorithm() -> None:
     val = templatetags.sri_integrity_static("index.js")
     assert val.startswith(f"{Algorithm.get_default().value}-"), val
 
 
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_get_static_path(file):
+def test_get_static_path(file: str) -> None:
     file_path = sri.utils.get_static_path(file)
 
     assert file_path.exists()
@@ -92,13 +93,13 @@ def test_get_static_path(file):
         assert file_path == Path("tests/static").joinpath(file).resolve()
 
 
-def test_default_algorithm_exists():
+def test_default_algorithm_exists() -> None:
     assert Algorithm.get_default() in sri.hashers.HASHERS
 
 
 @pytest.mark.parametrize("algorithm", sri.Algorithm)
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_hashes_are_consistent(algorithm, file):
+def test_hashes_are_consistent(algorithm: Algorithm, file: str) -> None:
     digest = sri.hashers.calculate_hash(sri.utils.get_static_path(file), algorithm)
     caches["default"].clear()
     digest_2 = sri.hashers.calculate_hash(sri.utils.get_static_path(file), algorithm)
@@ -107,7 +108,7 @@ def test_hashes_are_consistent(algorithm, file):
 
 @pytest.mark.parametrize("algorithm", sri.Algorithm)
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_integrity(algorithm, file):
+def test_integrity(algorithm: Algorithm, file: str) -> None:
     integrity = sri.integrity.calculate_integrity(
         sri.utils.get_static_path(file), algorithm
     )
@@ -115,7 +116,7 @@ def test_integrity(algorithm, file):
 
 
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_disable_sri(file):
+def test_disable_sri(file: str) -> None:
     original_value = templatetags.USE_SRI
     try:
         templatetags.USE_SRI = False
@@ -126,31 +127,31 @@ def test_disable_sri(file):
 
 @pytest.mark.parametrize("algorithm", sri.Algorithm)
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_sri_integrity_static(algorithm, file):
+def test_sri_integrity_static(algorithm: Algorithm, file: str) -> None:
     assert templatetags.sri_integrity_static(file, algorithm).startswith(
         f"{algorithm.value}-"
     )
 
 
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_unknown_algorithm(file):
+def test_unknown_algorithm(file: str) -> None:
     with pytest.raises(ValueError) as e:
         templatetags.sri_static(file, algorithm="md5")
     assert e.value.args[0] == "'md5' is not a valid Algorithm"
 
 
-def test_missing_file():
+def test_missing_file() -> None:
     with pytest.raises(FileNotFoundError):
         templatetags.sri_static("foo.js")
 
 
-def test_app_file():
+def test_app_file() -> None:
     templatetags.sri_static("admin/js/core.js")
 
 
 @pytest.mark.parametrize("algorithm", sri.Algorithm)
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_caches_hash(algorithm, file):
+def test_caches_hash(algorithm: Algorithm, file: str) -> None:
     file_path = sri.utils.get_static_path(file)
     cache_key = sri.hashers.get_cache_key(file_path, algorithm)
     cache = caches["default"]
@@ -161,7 +162,7 @@ def test_caches_hash(algorithm, file):
 
 
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_manifest_storage(settings, file):
+def test_manifest_storage(settings: Any, file: str) -> None:
     settings.STORAGES = {
         "staticfiles": {
             "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
@@ -176,11 +177,11 @@ def test_manifest_storage(settings, file):
 
     assert str(file_path).startswith(settings.STATIC_ROOT)
     assert not str(file_path).endswith(file)
-    assert str(file_path).endswith(staticfiles_storage.stored_name(file))
+    assert str(file_path).endswith(staticfiles_storage.stored_name(file))  # type: ignore[attr-defined]
 
 
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_default_storage(file):
+def test_default_storage(file: str) -> None:
     # Test for issue #70
     call_command("collectstatic", interactive=False, clear=True, verbosity=0)
 
@@ -204,6 +205,6 @@ def test_default_storage(file):
         (["defer"], {"type": "text/javascript"}, ' type="text/javascript" defer'),
     ],
 )
-def test_format_attrs(empty, extra, output: str) -> None:
+def test_format_attrs(empty: list, extra: dict, output: str) -> None:
     elem = templatetags.format_attrs(*empty, **extra)
     assert elem == output, elem

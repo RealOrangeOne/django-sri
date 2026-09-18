@@ -49,6 +49,7 @@ Changelog = "https://github.com/RealOrangeOne/django-sri/releases"
 dev = [
     "ruff==0.16.8",
     "mypy==2.3.1",
+    "django-stubs[compatible-mypy]",
     "pytest==9.1.1",
     "pytest-django==4.14.0",
     "pytest-cov==7.1.0",
@@ -56,9 +57,17 @@ dev = [
 ]
 
 [tool.mypy]
-no_implicit_optional = true
+plugins = ["mypy_django_plugin.main"]
 warn_unused_ignores = true
+warn_return_any = true
+show_error_codes = true
 strict_optional = true
+implicit_optional = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
 check_untyped_defs = true
 ignore_missing_imports = true
 
@@ -66,6 +75,30 @@ ignore_missing_imports = true
 DJANGO_SETTINGS_MODULE = "tests.settings"
 python_files = ["tests.py"]
 
+[tool.django-stubs]
+django_settings_module = "tests.settings"
+
 [tool.ruff.lint]
-select = ["E", "F", "I", "W", "N", "B", "A", "C4", "T20", "DJ"]
-ignore = ["E501"]
+select = ["E", "F", "I", "W", "N", "B", "A", "C4", "T20", "DJ", "S", "UP"]
+ignore = ["E501", "DJ008"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**.py" = ["S101", "S701", "S105"]
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+ignore_errors = true
+exclude_also = [
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc.)?abstractmethod",
+
+    # Nor complain about type checking
+    "if TYPE_CHECKING:",
+]

@@ -8,8 +8,8 @@ set -ex
 
 pytest --verbose --cov sri/ --cov-report term --cov-report html
 
-ruff format sri tests --check
+ruff format . --check
 
-ruff check sri tests
+ruff check .
 
-mypy sri tests
+mypy .

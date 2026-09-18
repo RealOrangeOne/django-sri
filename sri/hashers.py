@@ -14,8 +14,6 @@ HASHERS = {
     Algorithm.SHA512: hashlib.sha512,
 }
 
-READ_BUFFER_SIZE = 2**18  # 256k - matches `hashlib.file_digest`
-
 
 def calculate_hash(path: Path, algorithm: Algorithm) -> str:
     try:

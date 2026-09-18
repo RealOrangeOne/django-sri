@@ -33,11 +33,11 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r dev-requirements.txt
+          pip install -e . --group dev
           pip install Django~=${{ matrix.django-version }}
       - name: Run tests
         run: scripts/test.sh
       - name: Build package
         run: |
-          pip install --upgrade setuptools twine build wheel
+          pip install --upgrade pip build
           python -m build

@@ -1,3 +1,71 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+    "setuptools",
+]
+
+[project]
+name = "django-sri"
+description = "Subresource Integrity for Django"
+authors = [
+    {name = "Jake Howard"},
+]
+version = "0.8.0"
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Natural Language :: English",
+    "Topic :: Internet :: WWW/HTTP",
+    "Typing :: Typed"
+]
+requires-python = ">=3.10"
+dependencies = [
+    "django>=5.2",
+]
+
+[project.urls]
+Source = "https://github.com/RealOrangeOne/django-sri"
+Issues = "https://github.com/RealOrangeOne/django-sri/issues"
+Changelog = "https://github.com/RealOrangeOne/django-sri/releases"
+
+[dependency-groups]
+dev = [
+    "ruff==0.16.8",
+    "mypy==2.3.1",
+    "pytest==9.1.1",
+    "pytest-django==4.14.0",
+    "pytest-cov==7.1.0",
+    "jinja2",
+]
+
+[tool.mypy]
+no_implicit_optional = true
+warn_unused_ignores = true
+strict_optional = true
+check_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.pytest]
+DJANGO_SETTINGS_MODULE = "tests.settings"
+python_files = ["tests.py"]
+
 [tool.ruff.lint]
 select = ["E", "F", "I", "W", "N", "B", "A", "C4", "T20", "DJ"]
 ignore = ["E501"]

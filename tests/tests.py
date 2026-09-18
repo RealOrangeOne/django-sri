@@ -10,7 +10,6 @@ from django.core.management import call_command
 from django.template import engines
 
 import sri
-from sri import Algorithm
 from sri.templatetags import sri as templatetags
 
 TEST_FILES = ["index.css", "index.js", "admin/js/core.js"]
@@ -24,7 +23,7 @@ def setup_function(*_: Any) -> None:
 
 def test_uses_default_algorithm() -> None:
     val = templatetags.sri_integrity("index.js")
-    assert val.startswith(f"{Algorithm.get_default().value}-"), val
+    assert val.startswith(f"{sri.get_default_algorithm()}-"), val
 
 
 @pytest.mark.parametrize("file", TEST_FILES)
@@ -39,23 +38,23 @@ def test_get_static_path(file: str) -> None:
 
 
 def test_default_algorithm_exists() -> None:
-    assert Algorithm.get_default() in sri.HASHERS
+    assert sri.get_default_algorithm() in sri.HASHERS
 
 
-@pytest.mark.parametrize("algorithm", sri.Algorithm)
+@pytest.mark.parametrize("algorithm", sri.HASHERS.keys())
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_hashes_are_consistent(algorithm: Algorithm, file: str) -> None:
+def test_hashes_are_consistent(algorithm: str, file: str) -> None:
     digest = sri.calculate_integrity_of_static(file, algorithm)
     caches["default"].clear()
     digest_2 = sri.calculate_integrity_of_static(file, algorithm)
     assert digest == digest_2
 
 
-@pytest.mark.parametrize("algorithm", sri.Algorithm)
+@pytest.mark.parametrize("algorithm", sri.HASHERS.keys())
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_integrity(algorithm: Algorithm, file: str) -> None:
+def test_integrity(algorithm: str, file: str) -> None:
     integrity = sri.calculate_integrity_of_static(file, algorithm)
-    assert integrity.startswith(algorithm.value)
+    assert integrity.startswith(f"{algorithm}-")
 
 
 @pytest.mark.parametrize("file", TEST_FILES)
@@ -64,11 +63,21 @@ def test_disable_sri(settings: Any, file: str) -> None:
     assert templatetags.sri_attrs(file) == ""
 
 
+@pytest.mark.parametrize("algorithm", sri.HASHERS.keys())
+def test_unknown_algorithm(algorithm: str) -> None:
+    assert templatetags.sri_integrity(TEST_FILES[0], algorithm.upper()).startswith(
+        algorithm
+    )
+    assert templatetags.sri_integrity(TEST_FILES[0], algorithm.title()).startswith(
+        algorithm
+    )
+
+
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_unknown_algorithm(file: str) -> None:
+def test_case_insensitive_algorithm(file: str) -> None:
     with pytest.raises(ValueError) as e:
         templatetags.sri_integrity(file, algorithm="md5")
-    assert e.value.args[0] == "'md5' is not a valid Algorithm"
+    assert e.value.args[0] == "Unknown algorithm: md5"
 
 
 def test_missing_file() -> None:
@@ -80,9 +89,9 @@ def test_app_file() -> None:
     assert templatetags.sri_integrity("admin/js/core.js").startswith("sha256-")
 
 
-@pytest.mark.parametrize("algorithm", sri.Algorithm)
+@pytest.mark.parametrize("algorithm", sri.HASHERS.keys())
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_caches_hash(algorithm: Algorithm, file: str) -> None:
+def test_caches_hash(algorithm: str, file: str) -> None:
     file_path = sri.utils.get_static_path(file)
     cache_key = sri.utils.get_cache_key(file_path, algorithm)
     cache = caches["default"]

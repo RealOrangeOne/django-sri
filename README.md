@@ -60,12 +60,12 @@ Outside of templates, the relevant integrity values can be retrieved using `calc
 
 ```python
 from pathlib import Path
-from sri import calculate_integrity, calculate_integrity_of_static, Algorithm
+from sri import calculate_integrity, calculate_integrity_of_static
 
 calculate_integrity(Path("/path/to/myfile.txt"))  # "sha256-..."
-calculate_integrity_of_static("index.js")  # "sha256-..."
+calculate_integrity(Path("/path/to/myfile.txt"), "sha512")  # "sha512-..."
 
-calculate_integrity_of_static("index.js", Algorithm.SHA512)  # "sha512-..."
+calculate_integrity_of_static("index.js")  # "sha256-..."
 calculate_integrity_of_static("index.js", "sha512")  # "sha512-..."
 ```
 

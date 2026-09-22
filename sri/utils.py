@@ -1,16 +1,24 @@
+import base64
 import hashlib
 import logging
 import os
 from functools import lru_cache
-from pathlib import Path
 
+from django.conf import settings
 from django.contrib.staticfiles.finders import find as find_static_file
 from django.contrib.staticfiles.storage import ManifestFilesMixin, staticfiles_storage
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("sri")
 
 
-def get_static_path(path: str) -> Path:
+HASHERS = {
+    "sha256": hashlib.sha256,
+    "sha384": hashlib.sha384,
+    "sha512": hashlib.sha512,
+}
+
+
+def get_static_path(path: str) -> str:
     """
     Resolves a path commonly passed to `{% static %}` into a filesystem path
     """
@@ -20,17 +28,31 @@ def get_static_path(path: str) -> Path:
 
     collected_file_path = staticfiles_storage.path(path)
     if os.path.exists(collected_file_path):
-        return Path(collected_file_path)
+        return collected_file_path
 
     logger.debug("File not found in staticfiles_storage - checking source files")
     source_static_file_path = find_static_file(path)
     if source_static_file_path is not None:
-        return Path(source_static_file_path)
+        return source_static_file_path
 
     raise FileNotFoundError(path)
 
 
-@lru_cache(maxsize=500)
-def get_cache_key(path: Path, algorithm: str) -> str:
-    path_hash = hashlib.sha1(str(path).encode(), usedforsecurity=False).hexdigest()
-    return f"sri-{path_hash}-{algorithm}"
+def get_sri_for_file(path: str, algorithm: str) -> str:
+    # If not using SRI, don't cache to avoid issues with changing static files
+    if getattr(settings, "USE_SRI", not settings.DEBUG):
+        return _cached_get_sri_for_file(path, algorithm)
+    return _get_sri_for_file(path, algorithm)
+
+
+def _get_sri_for_file(path: str, algorithm: str) -> str:
+    if algorithm not in HASHERS:
+        raise ValueError(f"Unknown algorithm: {algorithm}")
+
+    with open(path, mode="rb") as f:
+        hasher = hashlib.file_digest(f, HASHERS[algorithm])
+
+    return base64.b64encode(hasher.digest()).decode()
+
+
+_cached_get_sri_for_file = lru_cache(maxsize=1000)(_get_sri_for_file)

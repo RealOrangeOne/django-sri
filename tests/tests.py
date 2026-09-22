@@ -1,5 +1,5 @@
+import os
 import shutil
-from pathlib import Path
 from typing import Any
 
 import pytest
@@ -11,13 +11,12 @@ from django.template import engines
 
 import sri
 from sri.templatetags import sri as templatetags
+from sri.utils import HASHERS
 
 TEST_FILES = ["index.css", "index.js", "admin/js/core.js"]
 
 
 def setup_function(*_: Any) -> None:
-    for cache in caches.all():
-        cache.clear()  # Clear cache between each test method
     shutil.rmtree(settings.STATIC_ROOT, ignore_errors=True)
 
 
@@ -30,18 +29,20 @@ def test_uses_default_algorithm() -> None:
 def test_get_static_path(file: str) -> None:
     file_path = sri.utils.get_static_path(file)
 
-    assert file_path.exists()
-    assert file_path.is_file()
+    assert os.path.exists(file_path)
+    assert os.path.isfile(file_path)
 
     if "site-packages" not in str(file_path):
-        assert file_path == Path("tests/static").joinpath(file).resolve()
+        assert file_path == os.path.realpath(
+            os.path.join(__file__, "../", "static", file)
+        )
 
 
 def test_default_algorithm_exists() -> None:
-    assert sri.get_default_algorithm() in sri.HASHERS
+    assert sri.get_default_algorithm() in HASHERS
 
 
-@pytest.mark.parametrize("algorithm", sri.HASHERS.keys())
+@pytest.mark.parametrize("algorithm", HASHERS.keys())
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_hashes_are_consistent(algorithm: str, file: str) -> None:
     digest = sri.get_sri_of_static(file, algorithm)
@@ -50,7 +51,7 @@ def test_hashes_are_consistent(algorithm: str, file: str) -> None:
     assert digest == digest_2
 
 
-@pytest.mark.parametrize("algorithm", sri.HASHERS.keys())
+@pytest.mark.parametrize("algorithm", HASHERS.keys())
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_integrity(algorithm: str, file: str) -> None:
     integrity = sri.get_sri_of_static(file, algorithm)
@@ -63,7 +64,7 @@ def test_disable_sri(settings: Any, file: str) -> None:
     assert templatetags.sri_attrs(file) == ""
 
 
-@pytest.mark.parametrize("algorithm", sri.HASHERS.keys())
+@pytest.mark.parametrize("algorithm", HASHERS.keys())
 def test_unknown_algorithm(algorithm: str) -> None:
     assert templatetags.sri_integrity(TEST_FILES[0], algorithm.upper()).startswith(
         algorithm
@@ -89,16 +90,25 @@ def test_app_file() -> None:
     assert templatetags.sri_integrity("admin/js/core.js").startswith("sha256-")
 
 
-@pytest.mark.parametrize("algorithm", sri.HASHERS.keys())
+@pytest.mark.parametrize("algorithm", HASHERS.keys())
 @pytest.mark.parametrize("file", TEST_FILES)
-def test_caches_hash(algorithm: str, file: str) -> None:
-    file_path = sri.utils.get_static_path(file)
-    cache_key = sri.utils.get_cache_key(file_path, algorithm)
-    cache = caches["default"]
+@pytest.mark.parametrize("use_sri", [True, False])
+def test_caches_hash(settings: Any, algorithm: str, file: str, use_sri: bool) -> None:
+    settings.USE_SRI = use_sri
 
-    assert cache.get(cache_key) is None
-    digest = sri.calculate_hash(file_path, algorithm)
-    assert cache.get(cache_key) == digest
+    sri.utils._cached_get_sri_for_file.cache_clear()
+
+    for _ in range(3):
+        templatetags.sri_integrity(file, algorithm)
+
+    cache_info = sri.utils._cached_get_sri_for_file.cache_info()
+
+    if use_sri:
+        assert cache_info.hits == 2
+        assert cache_info.misses == 1
+        assert cache_info.currsize == 1
+    else:
+        assert cache_info.currsize == 0
 
 
 @pytest.mark.parametrize("file", TEST_FILES)
@@ -112,12 +122,12 @@ def test_manifest_storage(settings: Any, file: str) -> None:
 
     file_path = sri.utils.get_static_path(file)
 
-    assert file_path.exists()
-    assert file_path.is_file()
+    assert os.path.exists(file_path)
+    assert os.path.isfile(file_path)
 
-    assert str(file_path).startswith(settings.STATIC_ROOT)
-    assert not str(file_path).endswith(file)
-    assert str(file_path).endswith(staticfiles_storage.stored_name(file))  # type: ignore[attr-defined]
+    assert file_path.startswith(settings.STATIC_ROOT)
+    assert not file_path.endswith(file)
+    assert file_path.endswith(staticfiles_storage.stored_name(file))  # type: ignore[attr-defined]
 
 
 @pytest.mark.parametrize("file", TEST_FILES)
@@ -127,12 +137,12 @@ def test_default_storage(file: str) -> None:
 
     file_path = sri.utils.get_static_path(file)
 
-    assert file_path.exists()
-    assert file_path.is_file()
+    assert os.path.exists(file_path)
+    assert os.path.isfile(file_path)
     # If you rollback the changes outlined in issue #70, this
     # will fail as the path returned will be the source path
     # and not the destination path.
-    assert str(file_path).startswith(settings.STATIC_ROOT)
+    assert file_path.startswith(settings.STATIC_ROOT)
 
 
 @pytest.mark.parametrize(

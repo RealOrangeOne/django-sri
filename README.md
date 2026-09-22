@@ -38,7 +38,7 @@ And add `sri` to your `INSTALLED_APPS`.
 
 __Note__: By default, `sri_attrs` does not output when `DEBUG` is `True`, as static files change a lot during local development. To override this, set `USE_SRI` to `True`. `sri_integrity` always outputs.
 
-For performance, the hashes of files are caches in Django's [caching framework](https://docs.djangoproject.com/en/dev/topics/cache/). It will attempt to use the "sri" cache, but fall back to "default" if it doesn't exist. The cache keys are the hash of the file path in the specified algorithm in hex. Caches are stored for as long as `DEFAULT_TIMEOUT` is set to.
+When outside `DEBUG` (or forced using `USE_SRI`), hashes are cached using an `lru_cache`.
 
 ### Algorithms
 

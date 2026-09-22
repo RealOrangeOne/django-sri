@@ -22,73 +22,51 @@ And add `sri` to your `INSTALLED_APPS`.
 
 ### Template Tags
 
-__Note__: By default, integrity hashes are not output when `DEBUG` is `True`, as static files change a lot during local development. To override this, set `USE_SRI` to `True`.
-
-`django-sri` is designed to primarily be used through template tags:
+`django-sri` is intended to primarily be used through template tags:
 
 ```html
 {% load sri %}
 
-{% sri_static "index.js" %} <!-- Will output "<script src='/static/index.js' integrity='sha256-...'></script>" -->
-{% sri_static "index.css" %} <!-- Will output "<link rel='stylesheet' href='/static/index.css' integrity='sha256-...'/>" -->
+<!-- Add the required integrity attributes to the relevant tag -->
+<link rel="stylesheet" href="{% static 'index.css' %}" {% sri_attrs 'index.css' %} />
+<script src="{% static 'index.js %}" {% sri_attrs 'index.js' %}></script>
+
+<!-- Or, get the integrity value directly -->
+<script src="{% static 'index.js %}" integrity="{% sri_integrity 'index.js' %}" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="{% static 'index.css' %}" integrity="{% sri_integrity 'index.css' %}" crossorigin="anonymous" />
 ```
+
+__Note__: By default, `sri_attrs` does not output when `DEBUG` is `True`, as static files change a lot during local development. To override this, set `USE_SRI` to `True`. `sri_integrity` always outputs.
 
 For performance, the hashes of files are caches in Django's [caching framework](https://docs.djangoproject.com/en/dev/topics/cache/). It will attempt to use the "sri" cache, but fall back to "default" if it doesn't exist. The cache keys are the hash of the file path in the specified algorithm in hex. Caches are stored for as long as `DEFAULT_TIMEOUT` is set to.
 
-#### Algorithms
+### Algorithms
 
-The SRI standard supports 3 algorithms: sha256, sha384 and sha512. By default, SHA256 is used. To override this, supply an additional `algorithm` argument to the `sri` template tag (or the specific ones):
+The SRI standard supports 3 algorithms: SHA256, SHA384 and SHA512. By default, SHA256 is used. To override this, supply an additional `algorithm` argument to the template tag:
 
 ```html
 {% load sri %}
 
-{% sri_static "index.js" algorithm="sha512" %} <!-- Will output "<script src='/static/index.js' integrity='sha512-...'></script>" -->
+{% sri_integrity "index.js" algorithm="sha512" %} <!-- Will output "integrity='sha512-...'" -->
 ```
 
 The default algorithm can be changed by setting `SRI_ALGORITHM` to the required algorithm.
 
-#### Additional attributes
-
-To add additional attributes to the output tag (such as `async` / `defer`), specify them as additional arguments to the template tag:
-
-```html
-{% load sri %}
-
-{% sri_static "index.js" 'defer' 'async'%}
-{% sri_static "index.woff2" preload as="font" %}
-```
-
-#### Just the integrity value
-
-To retrieve just the integrity hash (the contents of the `integrity` attribute), you can use the `{% sri_integrity_static %}` tag, which supports the same arguments as the other tags.
-
-```html
-{% load sri %}
-
-{% sri_integrity_static "index.js" "sha512" %} <!-- Will output "sha512-..." -->
-```
-
-#### Supported Files
-
-For automatic tag output, the following files are supported:
-
-- `.js`
-- `.css`
-
-Unknown extensions will emit a `link` tag with the URL as the `href` attribute.
-
-`sri_integrity_static` is unaffected by this limitation.
-
 ### API
+
+Outside of templates, the relevant integrity values can be retrieved using `calculate_integrity` or `calculate_integrity_of_static`.
+
+`calculate_integrity` accepts the path to any file, whereas `calculate_integrity_of_static` resolves static files similar to `{% static %}`.
 
 ```python
 from pathlib import Path
-from sri import calculate_integrity, calculate_integrity_of_static, Algorithm
+from sri import calculate_integrity, calculate_integrity_of_static
 
 calculate_integrity(Path("/path/to/myfile.txt"))  # "sha256-..."
-calculate_integrity_of_static("index.js")  # "sha256-..."
+calculate_integrity(Path("/path/to/myfile.txt"), "sha512")  # "sha512-..."
 
-calculate_integrity_of_static("index.js", Algorithm.SHA512)  # "sha512-..."
+calculate_integrity_of_static("index.js")  # "sha256-..."
+calculate_integrity_of_static("index.js", "sha512")  # "sha512-..."
 ```
 
 ### _"Does this work with [whitenoise](https://whitenoise.evans.io/en/stable/) or alike?"_

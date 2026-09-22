@@ -1,15 +1,11 @@
 import base64
 import hashlib
-import logging
 import os
 from functools import lru_cache
 
 from django.conf import settings
 from django.contrib.staticfiles.finders import find as find_static_file
 from django.contrib.staticfiles.storage import ManifestFilesMixin, staticfiles_storage
-
-logger = logging.getLogger("sri")
-
 
 HASHERS = {
     "sha256": hashlib.sha256,
@@ -30,7 +26,6 @@ def get_static_path(path: str) -> str:
     if os.path.exists(collected_file_path):
         return collected_file_path
 
-    logger.debug("File not found in staticfiles_storage - checking source files")
     source_static_file_path = find_static_file(path)
     if source_static_file_path is not None:
         return source_static_file_path

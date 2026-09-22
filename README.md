@@ -54,19 +54,19 @@ The default algorithm can be changed by setting `SRI_ALGORITHM` to the required 
 
 ### API
 
-Outside of templates, the relevant integrity values can be retrieved using `calculate_integrity` or `calculate_integrity_of_static`.
+Outside of templates, the relevant integrity values can be retrieved using `get_sri` or `get_sri_of_static`.
 
-`calculate_integrity` accepts the path to any file, whereas `calculate_integrity_of_static` resolves static files similar to `{% static %}`.
+`get_sri` accepts the path to any file, whereas `get_sri_of_static` resolves static files similar to `{% static %}`.
 
 ```python
 from pathlib import Path
-from sri import calculate_integrity, calculate_integrity_of_static
+from sri import get_sri, get_sri_of_static
 
-calculate_integrity(Path("/path/to/myfile.txt"))  # "sha256-..."
-calculate_integrity(Path("/path/to/myfile.txt"), "sha512")  # "sha512-..."
+get_sri(Path("/path/to/myfile.txt"))  # "sha256-..."
+get_sri(Path("/path/to/myfile.txt"), "sha512")  # "sha512-..."
 
-calculate_integrity_of_static("index.js")  # "sha256-..."
-calculate_integrity_of_static("index.js", "sha512")  # "sha512-..."
+get_sri_of_static("index.js")  # "sha256-..."
+get_sri_of_static("index.js", "sha512")  # "sha512-..."
 ```
 
 ### _"Does this work with [whitenoise](https://whitenoise.evans.io/en/stable/) or alike?"_

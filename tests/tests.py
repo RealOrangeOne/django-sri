@@ -44,16 +44,16 @@ def test_default_algorithm_exists() -> None:
 @pytest.mark.parametrize("algorithm", sri.HASHERS.keys())
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_hashes_are_consistent(algorithm: str, file: str) -> None:
-    digest = sri.calculate_integrity_of_static(file, algorithm)
+    digest = sri.get_sri_of_static(file, algorithm)
     caches["default"].clear()
-    digest_2 = sri.calculate_integrity_of_static(file, algorithm)
+    digest_2 = sri.get_sri_of_static(file, algorithm)
     assert digest == digest_2
 
 
 @pytest.mark.parametrize("algorithm", sri.HASHERS.keys())
 @pytest.mark.parametrize("file", TEST_FILES)
 def test_integrity(algorithm: str, file: str) -> None:
-    integrity = sri.calculate_integrity_of_static(file, algorithm)
+    integrity = sri.get_sri_of_static(file, algorithm)
     assert integrity.startswith(f"{algorithm}-")
 
 

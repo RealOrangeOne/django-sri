@@ -7,7 +7,7 @@ from django.core.cache import DEFAULT_CACHE_ALIAS, InvalidCacheBackendError, cac
 
 from .utils import get_cache_key, get_static_path
 
-__all__ = ["calculate_integrity", "calculate_integrity_of_static"]
+__all__ = ["get_sri", "get_sri_of_static"]
 
 
 HASHERS = {
@@ -21,7 +21,7 @@ def get_default_algorithm() -> str:
     return getattr(settings, "SRI_ALGORITHM", "sha256")
 
 
-def calculate_integrity(path: Path, algorithm: str | None = None) -> str:
+def get_sri(path: Path, algorithm: str | None = None) -> str:
     if algorithm is None:
         algorithm = get_default_algorithm()
 
@@ -30,10 +30,10 @@ def calculate_integrity(path: Path, algorithm: str | None = None) -> str:
     return f"{algorithm}-{calculate_hash(path, algorithm)}"
 
 
-def calculate_integrity_of_static(
+def get_sri_of_static(
     static_path: str, algorithm: str | None = None
 ) -> str:
-    return calculate_integrity(get_static_path(static_path), algorithm)
+    return get_sri(get_static_path(static_path), algorithm)
 
 
 def calculate_hash(path: Path, algorithm: str) -> str:

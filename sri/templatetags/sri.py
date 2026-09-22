@@ -2,14 +2,14 @@ from django import template
 from django.conf import settings
 from django.forms.utils import flatatt
 
-from sri import calculate_integrity_of_static
+from sri import get_sri_of_static
 
 register = template.Library()
 
 
 @register.simple_tag
 def sri_integrity(path: str, algorithm: str | None = None) -> str:
-    return calculate_integrity_of_static(path, algorithm)
+    return get_sri_of_static(path, algorithm)
 
 
 @register.simple_tag

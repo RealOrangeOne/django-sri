@@ -5,7 +5,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from django.contrib.staticfiles.finders import find as find_static_file
-from django.contrib.staticfiles.storage import staticfiles_storage
+from django.contrib.staticfiles.storage import ManifestFilesMixin, staticfiles_storage
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ def get_static_path(path: str) -> Path:
     Resolves a path commonly passed to `{% static %}` into a filesystem path
     """
 
-    if hasattr(staticfiles_storage, "stored_name"):
+    if isinstance(staticfiles_storage, ManifestFilesMixin):
         path = staticfiles_storage.stored_name(path)
 
     collected_file_path = staticfiles_storage.path(path)

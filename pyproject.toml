@@ -10,7 +10,7 @@ description = "Subresource Integrity for Django"
 authors = [
     {name = "Jake Howard"},
 ]
-version = "0.8.0"
+version = "1.0.0"
 readme = "README.md"
 license = "BSD-3-Clause"
 license-files = ["LICENSE"]
